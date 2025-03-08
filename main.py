@@ -8,8 +8,8 @@ async def main():
     agent = Manus()
     while True:
         try:
-            prompt = input("Enter your prompt (or 'exit' to quit): ")
-            if prompt.lower() == "exit":
+            prompt = input("Enter your prompt (or 'exit' / 'q' to quit): ")
+            if prompt.lower() == "exit" or prompt.lower() == "q":
                 logger.info("Goodbye!")
                 break
             logger.warning("Processing your request...")
