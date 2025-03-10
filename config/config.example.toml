@@ -1,8 +1,8 @@
 # Global LLM configuration
 [llm]
-model = "claude-3-5-sonnet"
-base_url = "https://api.openai.com/v1"
-api_key = "sk-..."
+model = "Qwen/Qwen2.5-72B-Instruct-128K"
+base_url = "https://api.siliconflow.cn/v1"
+api_key = "sk-dbmrniiwbmebhgggcerwdlwunyurxhkndjzmuuqtvzbndata"
 max_tokens = 4096
 temperature = 0.0
 
@@ -17,6 +17,11 @@ temperature = 0.0
 
 # Optional configuration for specific LLM models
 [llm.vision]
-model = "claude-3-5-sonnet"
-base_url = "https://api.openai.com/v1"
-api_key = "sk-..."
+model = "Pro/deepseek-ai/DeepSeek-R1"
+base_url = "https://api.siliconflow.cn/v1"
+api_key = "sk-dbmrniiwbmebhgggcerwdlwunyurxhkndjzmuuqtvzbndata"
+
+# Search engine configuration
+[search_engine]
+type = "searxng"  # Supported search engine types: google, searxng
+base_url = "http://127.0.0.1:8080"  # SearxNG service address
