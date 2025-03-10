@@ -1,0 +1,22 @@
+# Global LLM configuration
+[llm]
+model = "deepseek-chat"
+base_url = "https://api.deepseek.com"
+api_key = "sk-28e2c6a091654442a7c35b030bb59373"
+max_tokens = 8096
+temperature = 0.0
+
+# [llm] #AZURE OPENAI:
+# api_type= 'azure'
+# model = "YOUR_MODEL_NAME" #"gpt-4o-mini"
+# base_url = "{YOUR_AZURE_ENDPOINT.rstrip('/')}/openai/deployments/{AZURE_DEPOLYMENT_ID}"
+# api_key = "AZURE API KEY"
+# max_tokens = 8096
+# temperature = 0.0
+# api_version="AZURE API VERSION" #"2024-08-01-preview"
+
+# Optional configuration for specific LLM models
+[llm.vision]
+model = "deepseek-chat"
+base_url = "https://api.deepseek.com"
+api_key = "sk-28e2c6a091654442a7c35b030bb59373"

@@ -178,3 +178,6 @@ data/
 
 # Workspace
 workspace/
+
+# 忽略配置文件
+config/config.toml

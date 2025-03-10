@@ -50,7 +50,6 @@ class PythonExecute(BaseTool):
                 exec(code, safe_globals, {})
 
                 sys.stdout = sys.__stdout__
-
                 result["observation"] = output_buffer.getvalue()
 
             except Exception as e:
