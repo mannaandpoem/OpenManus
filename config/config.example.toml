@@ -20,3 +20,11 @@ temperature = 0.0
 model = "claude-3-5-sonnet"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."
+
+
+[web_search]
+# TODO: Modify to create a unified search entry that supports Bocha, Quark, Bing, etc. Currently, Bocha is supported.
+open_web_search = false  # Controls whether the web search tool is enabled. When set to True, web search functionality is allowed, but whether it is actually called depends on the LLM's requirements.
+api_url = "https://api.bochaai.com/v1/web-search"   # Search API URL
+api_key = ""   # Search API Key
+num_results = 5  # Default to return 5 search results

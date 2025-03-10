@@ -106,6 +106,12 @@ temperature = 0.0
 model = "gpt-4o"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # 替换为真实 API 密钥
+
+[web_search]
+open_web_search = false  # 控制是否启用联网搜索工具。设置为True时，允许使用联网搜索功能，但是否实际调用将根据LLM的需求决定。
+api_url = "https://api.bochaai.com/v1/web-search"   # 搜索 API 地址
+api_key = ""   # 搜索 API Key
+num_results = 5  # 默认返回 5 条搜索结果,尽量设置小一些，目前未做重排会大量消耗token，而且llm一般有输入长度限制
 ```
 
 ## 快速启动

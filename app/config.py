@@ -1,7 +1,8 @@
+import os
 import threading
 import tomllib
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -24,9 +25,15 @@ class LLMSettings(BaseModel):
     api_type: str = Field(..., description="AzureOpenai or Openai")
     api_version: str = Field(..., description="Azure Openai version if AzureOpenai")
 
+class WebSearchSettings(BaseModel):
+    open_web_search:bool = Field(False, description="Is open web search")
+    api_url: str = Field(..., description="Web search API URL")
+    api_key: str = Field(..., description="Web search API Key")
+    num_results: int = Field(5, description="Default number of search results")
 
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings]
+    web_search: WebSearchSettings
 
 
 class Config:
@@ -92,11 +99,35 @@ class Config:
             }
         }
 
+        # 解析 web_search 配置，并允许环境变量覆盖
+        web_search_config = raw_config.get("web_search", {})
+        web_search_settings = WebSearchSettings(
+            open_web_search=web_search_config.get("open_web_search", False),
+            api_url=web_search_config.get("api_url", ""),
+            api_key=web_search_config.get("api_key", ""),
+            num_results=web_search_config.get("num_results", 10),
+        )
+
+        config_dict = {
+            "llm": {
+                "default": LLMSettings(**default_settings),
+                **{
+                    name: LLMSettings(**{**default_settings, **override_config})
+                    for name, override_config in llm_overrides.items()
+                },
+            },
+            "web_search": web_search_settings,  # 直接赋值 WebSearchSettings 对象
+        }
+
         self._config = AppConfig(**config_dict)
 
     @property
     def llm(self) -> Dict[str, LLMSettings]:
         return self._config.llm
+
+    @property
+    def web_search(self) -> WebSearchSettings:
+        return self._config.web_search
 
 
 config = Config()

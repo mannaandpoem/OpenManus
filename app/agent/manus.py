@@ -7,6 +7,8 @@ from app.tool.browser_use_tool import BrowserUseTool
 from app.tool.file_saver import FileSaver
 from app.tool.google_search import GoogleSearch
 from app.tool.python_execute import PythonExecute
+from app.tool.web_search import WebSearch
+from app.config import config
 
 
 class Manus(ToolCallAgent):
@@ -32,3 +34,11 @@ class Manus(ToolCallAgent):
             PythonExecute(), GoogleSearch(), BrowserUseTool(), FileSaver(), Terminate()
         )
     )
+
+    def __init__(self):
+        super().__init__()
+        # Flag to control whether WebSearch is included in the available tools
+        tools = [PythonExecute(), GoogleSearch(), BrowserUseTool(), FileSaver(), Terminate()]
+        if config.web_search.open_web_search:
+            tools.append(WebSearch())
+        self.available_tools = ToolCollection(*tools)
