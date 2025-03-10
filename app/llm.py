@@ -8,6 +8,8 @@ from openai import (
     OpenAIError,
     RateLimitError,
 )
+
+from litellm import completion
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from app.config import LLMSettings, config
@@ -132,10 +134,10 @@ class LLM:
                 messages = system_msgs + self.format_messages(messages)
             else:
                 messages = self.format_messages(messages)
-
             if not stream:
                 # Non-streaming request
-                response = await self.client.chat.completions.create(
+
+                response = completion(
                     model=self.model,
                     messages=messages,
                     max_tokens=self.max_tokens,
@@ -147,7 +149,8 @@ class LLM:
                 return response.choices[0].message.content
 
             # Streaming request
-            response = await self.client.chat.completions.create(
+
+            response = await completion(
                 model=self.model,
                 messages=messages,
                 max_tokens=self.max_tokens,
@@ -212,6 +215,7 @@ class LLM:
             Exception: For unexpected errors
         """
         try:
+
             # Validate tool_choice
             if tool_choice not in ["none", "auto", "required"]:
                 raise ValueError(f"Invalid tool_choice: {tool_choice}")
@@ -222,7 +226,6 @@ class LLM:
                 messages = system_msgs + self.format_messages(messages)
             else:
                 messages = self.format_messages(messages)
-
             # Validate tools if provided
             if tools:
                 for tool in tools:
@@ -230,7 +233,8 @@ class LLM:
                         raise ValueError("Each tool must be a dict with 'type' field")
 
             # Set up the completion request
-            response = await self.client.chat.completions.create(
+
+            response = completion(
                 model=self.model,
                 messages=messages,
                 temperature=temperature or self.temperature,
@@ -240,7 +244,6 @@ class LLM:
                 timeout=timeout,
                 **kwargs,
             )
-
             # Check if response is valid
             if not response.choices or not response.choices[0].message:
                 print(response)
