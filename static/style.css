@@ -28,6 +28,7 @@ body {
 .container {
     display: flex;
     min-height: 100vh;
+    min-width: 0;
     width: 90%;
     margin: 0 auto;
     padding: 20px;
@@ -62,13 +63,13 @@ body {
 .task-container {
     @extend .card;
     width: 100%;
+    max-width: 100%;
     position: relative;
     min-height: 300px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px;
     overflow: auto;
     height: 100%;
 }
@@ -177,11 +178,15 @@ button:hover {
 }
 
 .step-container {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     padding: 15px;
     width: 100%;
-    max-height: calc(100vh - 300px);
+    max-height: calc(100vh - 200px);
     overflow-y: auto;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .step-item {
@@ -255,10 +260,9 @@ button:hover {
     border-left: 4px solid var(--text-light);
 }
 
-/* 删除重复的样式定义 */
-
 .log-prefix {
     font-weight: bold;
+    white-space: nowrap;
     margin-bottom: 5px;
     color: #666;
 }
@@ -267,15 +271,14 @@ button:hover {
     padding: 10px;
     border-radius: 4px;
     margin: 10px 0;
-    overflow-x: auto;
-    padding: 10px;
-    border-radius: 4px;
-    margin: 10px 0;
-    overflow-x: auto;
+    overflow-x: hidden;
     font-family: 'Courier New', monospace;
     font-size: 0.9em;
     line-height: 1.4;
     white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
     color: var(--text-color);
     background: var(--bg-color);
 
@@ -335,4 +338,16 @@ button:hover {
     background: #e6ffe6;
     border-radius: 4px;
     margin: 10px 0;
+}
+
+pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.complete pre {
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
