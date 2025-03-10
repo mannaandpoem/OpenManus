@@ -1,4 +1,7 @@
 import os
+import pathlib
+import datetime
+import re
 
 import aiofiles
 
@@ -22,6 +25,10 @@ The tool accepts content and a file path, and saves the content to that location
                 "type": "string",
                 "description": "(required) The path where the file should be saved, including filename and extension.",
             },
+            "plan_id": {
+                "type": "string",
+                "description": "(optional) The plan ID under which to save the file. If not provided, will use the active plan ID or today's date.",
+            },
             "mode": {
                 "type": "string",
                 "description": "(optional) The file opening mode. Default is 'w' for write. Use 'a' for append.",
@@ -32,19 +39,36 @@ The tool accepts content and a file path, and saves the content to that location
         "required": ["content", "file_path"],
     }
 
-    async def execute(self, content: str, file_path: str, mode: str = "w") -> str:
+    async def execute(self, content: str, file_path: str, plan_id: str = None, mode: str = "w") -> str:
         """
         Save content to a file at the specified path.
 
         Args:
             content (str): The content to save to the file.
             file_path (str): The path where the file should be saved.
+            plan_id (str, optional): The plan ID under which to save the file. If not provided, will use today's date.
             mode (str, optional): The file opening mode. Default is 'w' for write. Use 'a' for append.
 
         Returns:
             str: A message indicating the result of the operation.
         """
         try:
+            # Get the project root directory
+            root_dir = pathlib.Path(__file__).parent.parent.parent
+
+            # Get the project plans directory
+            outputs_dir = os.path.join(root_dir, "outputs")
+
+            if plan_id is None:
+                plan_id = datetime.datetime.now().strftime("%Y%m%d")
+
+            if not os.path.isabs(file_path):
+                file_path = os.path.join(outputs_dir, plan_id, file_path)
+
+            elif file_path.startswith(str(root_dir)) and "plans" not in file_path:
+                rel_path = os.path.relpath(file_path, str(root_dir))
+                file_path = os.path.join(outputs_dir, plan_id, rel_path)
+
             # Ensure the directory exists
             directory = os.path.dirname(file_path)
             if directory and not os.path.exists(directory):
