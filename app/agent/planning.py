@@ -1,3 +1,4 @@
+import json
 import time
 from typing import Dict, List, Literal, Optional
 
@@ -197,6 +198,27 @@ class PlanningAgent(ToolCallAgent):
         except Exception as e:
             logger.warning(f"Error finding current step index: {e}")
             return None
+
+    def extract_tool_call_from_gemini(self, response):
+        """
+        Extract and format a tool call from Gemini's JSON response.
+        """
+        if isinstance(response, dict) and "tool_calls" in response:
+            tool_calls = response["tool_calls"]
+            if tool_calls:
+                tool_call = tool_calls[0]
+                if tool_call.get("type") == "function":
+                    tool_function = tool_call["function"]
+                    if tool_function:
+                        return {
+                            "id": tool_call.get("id", "call_0"),
+                            "type": "function",
+                            "function": {
+                                "name": tool_function.get("name"),
+                                "arguments": json.dumps(tool_function.get("arguments")) # change here.
+                            }
+                        }
+        return None
 
     async def create_initial_plan(self, request: str) -> None:
         """Create an initial plan based on the request."""

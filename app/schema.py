@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, List, Literal, Optional, Union, Dict
 
 from pydantic import BaseModel, Field
 
@@ -17,6 +17,9 @@ class Function(BaseModel):
     name: str
     arguments: str
 
+class GeminiToolCallMessage(BaseModel):
+    content: str
+    tool_calls: Optional[List[Dict]] = None
 
 class ToolCall(BaseModel):
     """Represents a tool/function call in a message"""

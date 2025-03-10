@@ -1,5 +1,5 @@
 import json
-from typing import Any, List, Literal
+from typing import Any, List, Literal, Union, Dict
 
 from pydantic import Field
 
@@ -28,7 +28,7 @@ class ToolCallAgent(ReActAgent):
     tool_choices: Literal["none", "auto", "required"] = "auto"
     special_tool_names: List[str] = Field(default_factory=lambda: [Terminate().name])
 
-    tool_calls: List[ToolCall] = Field(default_factory=list)
+    tool_calls: List[Union[ToolCall, Dict]] = Field(default_factory=list)  # Change here.
 
     max_steps: int = 30
 
@@ -47,22 +47,29 @@ class ToolCallAgent(ReActAgent):
             tools=self.available_tools.to_params(),
             tool_choice=self.tool_choices,
         )
-        self.tool_calls = response.tool_calls
+        if self.llm.model.startswith('gemini'):  # check if it is gemini
+            self.tool_calls = response.tool_calls  # if gemini, it will be GeminiToolCallMessage
+        else:
+            self.tool_calls = response.tool_calls  # if openai, it will be ChatCompletionMessage
 
         # Log response info
         logger.info(f"✨ {self.name}'s thoughts: {response.content}")
-        logger.info(
-            f"🛠️ {self.name} selected {len(response.tool_calls) if response.tool_calls else 0} tools to use"
-        )
-        if response.tool_calls:
-            logger.info(
-                f"🧰 Tools being prepared: {[call.function.name for call in response.tool_calls]}"
-            )
-
+        # Log the tools being prepared
+        tool_names = []
+        if self.tool_calls:
+            if self.llm.model.startswith('gemini'):
+                # If using Gemini, handle dictionaries
+                tool_names = [call["function"]["name"] for call in self.tool_calls if call]
+            else:
+                # If using OpenAI, handle ToolCall objects
+                tool_names = [call.function.name for call in self.tool_calls if call]
+        logger.info(f"🛠️ {self.name} selected {len(tool_names)} tools to use")
+        if tool_names:
+            logger.info(f"🧰 Tools being prepared: {tool_names}")
         try:
             # Handle different tool_choices modes
             if self.tool_choices == "none":
-                if response.tool_calls:
+                if self.tool_calls:
                     logger.warning(
                         f"🤔 Hmm, {self.name} tried to use tools when they weren't available!"
                     )
@@ -76,7 +83,7 @@ class ToolCallAgent(ReActAgent):
                 Message.from_tool_calls(
                     content=response.content, tool_calls=self.tool_calls
                 )
-                if self.tool_calls
+                if self.tool_calls and not self.llm.model.startswith('gemini')
                 else Message.assistant_message(response.content)
             )
             self.memory.add_message(assistant_msg)
@@ -110,35 +117,66 @@ class ToolCallAgent(ReActAgent):
         results = []
         for command in self.tool_calls:
             result = await self.execute_tool(command)
+            # Add check here!
+            if self.llm.model.startswith("gemini"):  # Check if it is Gemini
+                tool_name = command["function"]["name"]
+            else:
+                tool_name = command.function.name
             logger.info(
-                f"🎯 Tool '{command.function.name}' completed its mission! Result: {result}"
+                f"🎯 Tool '{tool_name}' completed its mission! Result: {result}"
             )
 
             # Add tool response to memory
-            tool_msg = Message.tool_message(
-                content=result, tool_call_id=command.id, name=command.function.name
-            )
+            if self.llm.model.startswith("gemini"):  # check if it is gemini
+                tool_msg = Message.tool_message(
+                    content=result, tool_call_id=command["id"], name=command["function"]["name"]
+                )
+            else:
+                tool_msg = Message.tool_message(
+                    content=result, tool_call_id=command.id, name=command.function.name
+                )
             self.memory.add_message(tool_msg)
             results.append(result)
 
         return "\n\n".join(results)
 
-    async def execute_tool(self, command: ToolCall) -> str:
+    async def execute_tool(self, command: Union[ToolCall, Dict]) -> str:
         """Execute a single tool call with robust error handling"""
-        if not command or not command.function or not command.function.name:
+        if not command:
             return "Error: Invalid command format"
+        if self.llm.model.startswith("gemini"):  # check if it is gemini
+            if not command["function"] or not command["function"]["name"]:
+                return "Error: Invalid command format"
+            name = command["function"]["name"]
+        else:
+            if not command.function or not command.function.name:
+                return "Error: Invalid command format"
+            name = command.function.name
 
-        name = command.function.name
         if name not in self.available_tools.tool_map:
             return f"Error: Unknown tool '{name}'"
 
         try:
             # Parse arguments
-            args = json.loads(command.function.arguments or "{}")
-
-            # Execute the tool
-            logger.info(f"🔧 Activating tool: '{name}'...")
-            result = await self.available_tools.execute(name=name, tool_input=args)
+            if self.llm.model.startswith("gemini"):  # check if it is gemini
+                args_str = command["function"].get("arguments") or "{}" # change here
+                if isinstance(args_str, str):
+                    try:
+                        args = json.loads(args_str) # change here
+                    except json.JSONDecodeError:
+                        args = {} # change here
+                else:
+                    args = {} # change here
+                # Extract 'query' specifically for GoogleSearch
+                if name == "google_search":
+                    query = args.get("query")
+                    num_results = args.get("num_results") or 3
+                    result = await self.available_tools.execute(name=name, tool_input={"query": query,"num_results":num_results})  # change here.
+                else:
+                    result = await self.available_tools.execute(name=name, tool_input=args)
+            else:
+                args = json.loads(command.function.arguments or "{}")
+                result = await self.available_tools.execute(name=name, tool_input=args)
 
             # Format result for display
             observation = (
