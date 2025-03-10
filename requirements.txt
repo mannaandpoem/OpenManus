@@ -20,3 +20,4 @@ aiofiles~=24.1.0
 pydantic_core~=2.27.2
 colorama~=0.4.6
 playwright~=1.49.1
+fastapi==0.115.11
