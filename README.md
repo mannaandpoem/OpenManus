@@ -66,9 +66,16 @@ cd OpenManus
 
 ```bash
 uv venv
-source .venv/bin/activate  # On Unix/macOS
-# Or on Windows:
-# .venv\Scripts\activate
+- **Activate the virtual environment**:
+  - On **Unix/macOS**:
+    ```bash
+    source .venv/bin/activate
+    ```
+  - On **Windows**:
+    ```powershell
+    .venv\Scripts\activate
+    ```
+
 ```
 
 4. Install dependencies:
