@@ -25,8 +25,26 @@ class LLMSettings(BaseModel):
     api_version: str = Field(..., description="Azure Openai version if AzureOpenai")
 
 
+class BrowserSettings(BaseModel):
+    headless: bool = Field(
+        ...,
+        description="Runs the browser without a visible UI. Note that some websites may detect headless mode.",
+    )
+    disable_security: bool = Field(
+        ..., description="Disables browser security features. "
+    )
+    extra_chromium_args: list = Field(
+        ..., description="Additional arguments are passed to the browser at launch."
+    )
+    proxy: dict = Field(
+        ...,
+        description="Standard Playwright proxy settings for using external proxy services.",
+    )
+
+
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings]
+    browser: BrowserSettings
 
 
 class Config:
@@ -68,6 +86,7 @@ class Config:
     def _load_initial_config(self):
         raw_config = self._load_config()
         base_llm = raw_config.get("llm", {})
+        base_browser = raw_config.get("browser", {})
         llm_overrides = {
             k: v for k, v in raw_config.get("llm", {}).items() if isinstance(v, dict)
         }
@@ -89,7 +108,13 @@ class Config:
                     name: {**default_settings, **override_config}
                     for name, override_config in llm_overrides.items()
                 },
-            }
+            },
+            "browser": {
+                "headless": base_browser.get("headless"),
+                "disable_security": base_browser.get("disable_security"),
+                "extra_chromium_args": base_browser.get("extra_chromium_args", []),
+                "proxy": base_browser.get("proxy", {}),
+            },
         }
 
         self._config = AppConfig(**config_dict)
@@ -97,6 +122,9 @@ class Config:
     @property
     def llm(self) -> Dict[str, LLMSettings]:
         return self._config.llm
+
+    def browser(self) -> Dict[str, BrowserSettings]:
+        return self._config.browser
 
 
 config = Config()
