@@ -1,5 +1,7 @@
 from typing import Dict, List, Literal, Optional, Union
 
+import time
+from zhipuai import ZhipuAI
 from openai import (
     APIError,
     AsyncAzureOpenAI,
@@ -46,6 +48,9 @@ class LLM:
                     api_key=self.api_key,
                     api_version=self.api_version,
                 )
+            elif self.api_type == "zhipuai":
+                # ZhipuAI.api_key = self.api_key
+                self.client = ZhipuAI(api_key=self.api_key)
             else:
                 self.client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
 
@@ -133,27 +138,71 @@ class LLM:
             else:
                 messages = self.format_messages(messages)
 
-            if not stream:
-                # Non-streaming request
+            if self.api_type == "zhipuai":
+                if not stream:
+                    task = self.client.chat.asyncCompletions.create(
+                        model=self.model,
+                        messages=messages,
+                        temperature=temperature or self.temperature,
+                        stream=False
+                    )
+                    task_id = task.id
+                    task_status = ''
+                    get_cnt = 0
+
+                    while task_status != 'SUCCESS' and task_status != 'FAILED' and get_cnt <= 40:
+                        response = self.client.chat.asyncCompletions.retrieve_completion_result(id=task_id)
+                        # print(response)
+                        task_status = response.task_status
+
+                        time.sleep(2)
+                        get_cnt += 1
+                    
+                    if not response.choices or not response.choices[0].message.content:
+                        raise ValueError("Empty or invalid response from LLM")
+                    return response.choices[0].message.content
+
+                # Streaming request for zhipuai
+                task = self.client.chat.asyncCompletions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=temperature or self.temperature,
+                    stream=True
+                )
+                task_id = task.id
+                task_status = ''
+                get_cnt = 0
+
+                while task_status != 'SUCCESS' and task_status != 'FAILED' and get_cnt <= 40:
+                    response = self.client.chat.asyncCompletions.retrieve_completion_result(id=task_id)
+                    # print(response)
+                    task_status = response.task_status
+
+                    time.sleep(2)
+                    get_cnt += 1
+            else:
+                # Original OpenAI and Azure OpenAI logic
+                if not stream:
+                    # Non-streaming request
+                    response = await self.client.chat.completions.create(
+                        model=self.model,
+                        messages=messages,
+                        max_tokens=self.max_tokens,
+                        temperature=temperature or self.temperature,
+                        stream=False,
+                    )
+                    if not response.choices or not response.choices[0].message.content:
+                        raise ValueError("Empty or invalid response from LLM")
+                    return response.choices[0].message.content
+
+                # Streaming request
                 response = await self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
                     max_tokens=self.max_tokens,
                     temperature=temperature or self.temperature,
-                    stream=False,
+                    stream=True,
                 )
-                if not response.choices or not response.choices[0].message.content:
-                    raise ValueError("Empty or invalid response from LLM")
-                return response.choices[0].message.content
-
-            # Streaming request
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                max_tokens=self.max_tokens,
-                temperature=temperature or self.temperature,
-                stream=True,
-            )
 
             collected_messages = []
             async for chunk in response:
@@ -228,6 +277,35 @@ class LLM:
                 for tool in tools:
                     if not isinstance(tool, dict) or "type" not in tool:
                         raise ValueError("Each tool must be a dict with 'type' field")
+
+            if self.api_type == "zhipuai":
+                # 智谱AI的工具调用
+                task =  self.client.chat.asyncCompletions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=temperature or self.temperature,
+                    tools=tools,
+                    
+                    tool_choice=tool_choice,
+                    **kwargs
+                )
+                task_id = task.id
+                task_status = ''
+                get_cnt = 0
+
+                while task_status != 'SUCCESS' and task_status != 'FAILED' and get_cnt <= 40:
+                    response = self.client.chat.asyncCompletions.retrieve_completion_result(id=task_id)
+                    # print(response)
+                    task_status = response.task_status
+
+                    time.sleep(2)
+                    get_cnt += 1
+                
+                if not response.choices or not response.choices[0].message:
+                    raise ValueError("Invalid or empty response from LLM")
+                
+                return response.choices[0].message
+
 
             # Set up the completion request
             response = await self.client.chat.completions.create(
