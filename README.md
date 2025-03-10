@@ -115,6 +115,10 @@ One line for run OpenManus:
 ```bash
 python main.py
 ```
+## To run GUI based app
+```bash
+python gui_main.py
+```
 
 Then input your idea via terminal!
 
