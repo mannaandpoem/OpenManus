@@ -5,7 +5,7 @@ from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import Terminate, ToolCollection
 from app.tool.browser_use_tool import BrowserUseTool
 from app.tool.file_saver import FileSaver
-from app.tool.google_search import GoogleSearch
+from app.tool.search_tool import SearchTool
 from app.tool.python_execute import PythonExecute
 
 
@@ -29,6 +29,6 @@ class Manus(ToolCallAgent):
     # Add general-purpose tools to the tool collection
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
-            PythonExecute(), GoogleSearch(), BrowserUseTool(), FileSaver(), Terminate()
+            PythonExecute(), SearchTool(), BrowserUseTool(), FileSaver(), Terminate()
         )
     )
