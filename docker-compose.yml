@@ -1,0 +1,14 @@
+services:
+  openmanus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openmanus
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config # 挂载 config 目录
+    env_file:
+      - .env # 统一管理环境变量
+    tty: true
+    stdin_open: true
+    command: ["python", "${OPENMANUS_ENTRY:-main.py}"]
