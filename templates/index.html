@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenManus本地版</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="history-panel">
+            <h2>历史任务</h2>
+            <div id="task-list" class="task-list"></div>
+        </div>
+
+        <div class="main-panel">
+            <div id="task-container" class="task-container">
+                <div class="welcome-message">
+                    <h1>欢迎使用OpenManus本地版</h1>
+                    <p>请输入任务提示开始新的任务</p>
+                </div>
+                <div id="log-container" class="step-container"></div>
+            </div>
+
+            <div id="input-container" class="input-container">
+                <input 
+                    type="text" 
+                    id="prompt-input" 
+                    placeholder="请输入任务提示..."
+                    onkeypress="if(event.keyCode === 13) createTask()"
+                >
+                <button onclick="createTask()">创建任务</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/main.js"></script>
+</body>
+</html>

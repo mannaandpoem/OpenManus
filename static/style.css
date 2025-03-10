@@ -1,0 +1,338 @@
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --warning-color: #ff9800;
+    --info-color: #2196f3;
+    --text-color: #333;
+    --text-light: #666;
+    --bg-color: #f8f9fa;
+    --border-color: #ddd;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    gap: 20px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.history-panel {
+    width: 300px;
+}
+
+.main-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.task-list {
+    margin-top: 10px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.task-container {
+    @extend .card;
+    width: 100%;
+    position: relative;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: auto;
+    height: 100%;
+}
+
+.welcome-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--text-light);
+    background: white;
+    z-index: 1;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 100%;
+    height: 100%;
+}
+
+.welcome-message h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.input-container {
+    @extend .card;
+    display: flex;
+    gap: 10px;
+}
+
+#prompt-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+button {
+    padding: 12px 24px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+.task-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.task-item:hover {
+    background-color: #e9ecef;
+}
+
+.task-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#input-container.bottom {
+    margin-top: auto;
+}
+
+.task-card {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.task-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.status-pending {
+    color: var(--text-light);
+}
+
+.status-running {
+    color: var(--primary-color);
+}
+
+.status-completed {
+    color: var(--success-color);
+}
+
+.status-failed {
+    color: var(--error-color);
+}
+
+.step-container {
+    display: block;
+    padding: 15px;
+    width: 100%;
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+.step-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+    opacity: 1;
+    transform: none;
+}
+
+.step-item .log-line:not(.result) {
+    opacity: 0.7;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.step-item .log-line.result {
+    opacity: 1;
+    color: #333;
+    font-size: 1em;
+    background: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.step-item.show {
+    opacity: 1;
+    transform: none;
+}
+
+.log-line {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.log-line.think,
+.step-item pre.think {
+    background: var(--info-color-light);
+    border-left: 4px solid var(--info-color);
+}
+
+.log-line.tool,
+.step-item pre.tool {
+    background: var(--warning-color-light);
+    border-left: 4px solid var(--warning-color);
+}
+
+.log-line.result,
+.step-item pre.result {
+    background: var(--success-color-light);
+    border-left: 4px solid var(--success-color);
+}
+
+.log-line.error,
+.step-item pre.error {
+    background: var(--error-color-light);
+    border-left: 4px solid var(--error-color);
+}
+
+.log-line.info,
+.step-item pre.info {
+    background: var(--bg-color);
+    border-left: 4px solid var(--text-light);
+}
+
+/* 删除重复的样式定义 */
+
+.log-prefix {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.step-item pre {
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow-x: auto;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    color: var(--text-color);
+    background: var(--bg-color);
+    
+    &.log {
+        background: var(--bg-color);
+        border-left: 4px solid var(--text-light);
+    }
+    &.think {
+        background: var(--info-color-light);
+        border-left: 4px solid var(--info-color);
+    }
+    &.tool {
+        background: var(--warning-color-light);
+        border-left: 4px solid var(--warning-color);
+    }
+    &.result {
+        background: var(--success-color-light);
+        border-left: 4px solid var(--success-color);
+    }
+}
+
+.step-item strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #007bff;
+    font-size: 0.9em;
+}
+
+.step-item div {
+    color: #444;
+    line-height: 1.6;
+}
+
+.loading {
+    padding: 15px;
+    color: #666;
+    text-align: center;
+}
+
+.ping {
+    color: #ccc;
+    text-align: center;
+    margin: 5px 0;
+}
+
+.error {
+    color: #dc3545;
+    padding: 10px;
+    background: #ffe6e6;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.complete {
+    color: #28a745;
+    padding: 10px;
+    background: #e6ffe6;
+    border-radius: 4px;
+    margin: 10px 0;
+}
