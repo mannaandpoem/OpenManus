@@ -107,6 +107,10 @@ base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # 替换为真实 API 密钥
 ```
 
+## docker 启动
+
+[docker](docker.md)
+
 ## 快速启动
 
 一行命令运行 OpenManus：
