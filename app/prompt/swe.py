@@ -26,3 +26,42 @@ NEXT_STEP_TEMPLATE = """{{observation}}
 (Current directory: {{working_dir}})
 bash-$
 """
+import os
+
+def get_current_directory():
+    return os.getcwd()
+
+def list_files(directory):
+    return os.listdir(directory)
+
+def read_file(file_path):
+    with open(file_path, 'r') as file:
+        content = file.read()
+    return content
+
+def edit_file(file_path, new_content):
+    with open(file_path, 'w') as file:
+        file.write(new_content)
+
+if __name__ == "__main__":
+    # Step 1: Identify the current working directory
+    current_directory = get_current_directory()
+    print(f"Current Directory: {current_directory}")
+
+    # Step 2: List the files in the directory
+    files = list_files(current_directory)
+    print(f"Files: {files}")
+
+    # Step 3: Choose a file to open and edit
+    file_to_open = input("Enter the name of the file you want to open: ")
+    if file_to_open in files:
+        content = read_file(file_to_open)
+        print(f"Content of {file_to_open}:\n{content}")
+
+        # Step 4: Edit the file
+        new_content = input("Enter the new content for the file: ")
+        edit_file(file_to_open, new_content)
+        print(f"{file_to_open} has been updated.")
+    else:
+        print(f"File {file_to_open} not found in the current directory.")
+
