@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manus Web Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-10 px-4">
+    <div class="w-full max-w-3xl bg-white shadow-lg rounded-xl p-8">
+        <h1 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Manus Web Interface</h1>
+
+        <textarea id="prompt"
+            class="w-full h-14 resize-none rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-300 outline-none p-4 text-gray-700 bg-gray-50"
+            placeholder="Enter your prompt here..."></textarea>
+
+        <button id="submitBtn"
+            class="mt-4 w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium transition-colors duration-200">
+            Submit
+        </button>
+
+        <pre id="result"
+            class="mt-6 bg-gray-50 rounded-md border border-gray-200 p-4 h-96 overflow-auto text-gray-700 whitespace-pre-wrap"></pre>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#submitBtn').click(async function() {
+                const prompt = $('#prompt').val();
+                const response = await fetch('/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    $('#result').text(data.result);
+                } else {
+                    $('#result').text(`Error: ${data.error}`);
+                }
+            });
+
+            function startLogStream() {
+                const eventSource = new EventSource("/logs");
+                eventSource.onmessage = function(event) {
+                    $('#result').append(event.data + "\n");
+                    $('#result').scrollTop($('#result')[0].scrollHeight);
+                };
+
+                eventSource.onerror = function() {
+                    console.error("SSE connection closed.");
+                    eventSource.close();
+                };
+            }
+
+            startLogStream();
+        });
+    </script>
+</body>
+</html>
