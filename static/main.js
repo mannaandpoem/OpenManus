@@ -178,7 +178,7 @@ function loadHistory() {
             <div class="task-card" data-task-id="${task.id}">
                 <div>${task.prompt}</div>
                 <div class="task-meta">
-                    ${new Date(task.created_at).toLocaleString()} - 
+                    ${new Date(task.created_at).toLocaleString()} -
                     <span class="status status-${task.status ? task.status.toLowerCase() : 'unknown'}">
                         ${task.status || '未知状态'}
                     </span>
