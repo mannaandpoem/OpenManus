@@ -1,4 +1,4 @@
-# Global LLM configuration
+#Global LLM configuration
 [llm]
 model = "claude-3-5-sonnet"
 base_url = "https://api.openai.com/v1"
@@ -15,8 +15,25 @@ temperature = 0.0
 # temperature = 0.0
 # api_version="AZURE API VERSION" #"2024-08-01-preview"
 
+# [llm] #OLLAMA:
+# api_type = 'ollama'
+# model = "qwen2.5" # model needs to support tool use
+# base_url = "http://localhost:11434/v1"
+# max_tokens = 4096
+# temperature = 0.0
+# api_key = "ollama"
+
 # Optional configuration for specific LLM models
 [llm.vision]
 model = "claude-3-5-sonnet"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."
+
+# [llm.vision] #OLLAMA VISION:
+# api_type = 'ollama'
+# model = "llava" # or any other multimodal model you have in Ollama that supports vision
+# base_url = "http://localhost:11434/v1"
+# max_tokens = 4096
+# temperature = 0.0
+# api_key = "ollama"
+
