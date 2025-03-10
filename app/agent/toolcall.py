@@ -1,6 +1,6 @@
 import json
 from typing import Any, List, Literal
-
+import ast
 from pydantic import Field
 
 from app.agent.react import ReActAgent
@@ -134,7 +134,9 @@ class ToolCallAgent(ReActAgent):
 
         try:
             # Parse arguments
-            args = json.loads(command.function.arguments or "{}")
+            args_dic = ast.literal_eval(command.function.arguments)
+            args_json_str  = json.dumps(args_dic)
+            args = json.loads(args_json_str or "{}")
 
             # Execute the tool
             logger.info(f"🔧 Activating tool: '{name}'...")
