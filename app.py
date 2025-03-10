@@ -10,6 +10,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+import webbrowser
+import threading
+
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -169,11 +172,13 @@ async def task_events(task_id: str):
 
         task = task_manager.tasks.get(task_id)
         if task:
-            yield f"event: status\ndata: {dumps({
+            message = {
                 'type': 'status',
                 'status': task.status,
                 'steps': task.steps
-            })}\n\n"
+            }
+            json_message = dumps(message)
+            yield f"event: status\ndata: {json_message}\n\n"
 
         while True:
             try:
@@ -245,6 +250,10 @@ async def generic_exception_handler(request: Request, exc: Exception):
         content={"message": f"Server error: {str(exc)}"}
     )
 
+def open_local_browser():
+    webbrowser.open_new_tab("http://localhost:5172")
+
 if __name__ == "__main__":
+    threading.Timer(3, open_local_browser).start()
     import uvicorn
     uvicorn.run(app, host="localhost", port=5172)
