@@ -106,6 +106,12 @@ temperature = 0.0
 model = "gpt-4o"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
+
+[web_search]
+open_web_search = false # Controls whether to enable the online search tool. When set to True, the online search function is allowed, but whether it is actually called will be determined according to the needs of the LLM.
+api_url = "https://api.bochaai.com/v1/web-search" # Search API address
+api_key = "" # Search API Key
+num_results = 5 # By default, 5 search results are returned. It is recommended to set this value to be small. Currently, no re - ranking is done, which may consume a large number of tokens. Also, the LLM generally has an input length limit.
 ```
 
 ## Quick Start
