@@ -52,10 +52,12 @@ pip install -r requirements.txt
 
 ### Method 2: Using uv (Recommended)
 
-1. Install uv (A fast Python package installer and resolver):
+[uv](https://github.com/astral-sh/uv) is a new Python package installer and resolver, drastically faster than pip.
+
+1. Install uv if you don't have it:
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+pip install uv
 ```
 
 2. Clone the repository:
@@ -65,16 +67,7 @@ git clone https://github.com/mannaandpoem/OpenManus.git
 cd OpenManus
 ```
 
-3. Create a new virtual environment and activate it:
-
-```bash
-uv venv
-source .venv/bin/activate  # On Unix/macOS
-# Or on Windows:
-# .venv\Scripts\activate
-```
-
-4. Install dependencies:
+3. Install dependencies using uv:
 
 ```bash
 uv pip install -r requirements.txt
@@ -82,21 +75,18 @@ uv pip install -r requirements.txt
 
 ## Configuration
 
-OpenManus requires configuration for the LLM APIs it uses. Follow these steps to set up your configuration:
-
-1. Create a `config.toml` file in the `config` directory (you can copy from the example):
+Copy the example configuration file to create your own configuration:
 
 ```bash
 cp config/config.example.toml config/config.toml
 ```
 
-2. Edit `config/config.toml` to add your API keys and customize settings:
+Open the `config/config.toml` file and replace the example API keys with your own:
 
 ```toml
-# Global LLM configuration
 [llm]
-model = "gpt-4o"
-base_url = "https://api.openai.com/v1"
+model = "claude-3-opus-20240229"
+base_url = "https://api.anthropic.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
 max_tokens = 4096
 temperature = 0.0
@@ -110,7 +100,9 @@ api_key = "sk-..."  # Replace with your actual API key
 
 ## Quick Start
 
-One line for run OpenManus:
+### Console Mode
+
+One line to run OpenManus in console mode:
 
 ```bash
 python main.py
@@ -123,6 +115,33 @@ For unstable version, you also can run:
 ```bash
 python run_flow.py
 ```
+
+### WebSocket Server Mode
+
+You can also run OpenManus as a WebSocket server that allows clients to connect and interact with agents:
+
+1. Install additional WebSocket dependencies:
+
+```bash
+pip install -r requirements-ws.txt
+```
+
+2. Start the WebSocket server:
+
+```bash
+python websocket_main.py --host 0.0.0.0 --port 8000
+```
+
+3. Open a web browser and navigate to the test client:
+
+```
+http://localhost:8000/examples/websocket_client.html
+```
+
+The WebSocket server provides:
+- Real-time communication with agents
+- File upload capabilities for sharing files with agents
+- Multiple concurrent client sessions
 
 ## How to contribute
 

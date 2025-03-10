@@ -1,0 +1,3 @@
+fastapi~=0.115
+websockets~=15.0
+python-multipart~=0.0.9
