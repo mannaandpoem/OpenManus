@@ -23,6 +23,7 @@ class LLMSettings(BaseModel):
     temperature: float = Field(1.0, description="Sampling temperature")
     api_type: str = Field(..., description="AzureOpenai or Openai")
     api_version: str = Field(..., description="Azure Openai version if AzureOpenai")
+    search_agent_config: str = Field(..., description="Search agent used search url")
 
 
 class AppConfig(BaseModel):
@@ -80,6 +81,7 @@ class Config:
             "temperature": base_llm.get("temperature", 1.0),
             "api_type": base_llm.get("api_type", ""),
             "api_version": base_llm.get("api_version", ""),
+            "search_agent_config": base_llm.get("search_agent_config", "google"),
         }
 
         config_dict = {
@@ -97,6 +99,4 @@ class Config:
     @property
     def llm(self) -> Dict[str, LLMSettings]:
         return self._config.llm
-
-
 config = Config()

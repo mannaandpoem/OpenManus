@@ -5,7 +5,7 @@ base_url = "https://api.openai.com/v1"
 api_key = "sk-..."
 max_tokens = 4096
 temperature = 0.0
-
+search_agent_config = "baidu"
 # [llm] #AZURE OPENAI:
 # api_type= 'azure'
 # model = "YOUR_MODEL_NAME" #"gpt-4o-mini"
