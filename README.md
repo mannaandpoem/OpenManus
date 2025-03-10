@@ -65,19 +65,10 @@ git clone https://github.com/mannaandpoem/OpenManus.git
 cd OpenManus
 ```
 
-3. Create a new virtual environment and activate it:
+3. Install dependencies:
 
 ```bash
-uv venv
-source .venv/bin/activate  # On Unix/macOS
-# Or on Windows:
-# .venv\Scripts\activate
-```
-
-4. Install dependencies:
-
-```bash
-uv pip install -r requirements.txt
+uv add -r requirements.txt
 ```
 
 ## Configuration
@@ -112,16 +103,26 @@ api_key = "sk-..."  # Replace with your actual API key
 
 One line for run OpenManus:
 
+conda:
 ```bash
 python main.py
+```
+uv:
+```bash
+uv run python main.py
 ```
 
 Then input your idea via terminal!
 
 For unstable version, you also can run:
 
+conda:
 ```bash
 python run_flow.py
+```
+uv:
+```bash
+uv run python run_flow.py
 ```
 
 ## How to contribute
