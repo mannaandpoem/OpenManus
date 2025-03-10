@@ -47,7 +47,7 @@ class PythonExecute(BaseTool):
                 output_buffer = StringIO()
                 sys.stdout = output_buffer
 
-                exec(code, safe_globals, {})
+                exec(code, safe_globals, safe_globals)
 
                 sys.stdout = sys.__stdout__
 
