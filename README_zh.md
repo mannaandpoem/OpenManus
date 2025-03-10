@@ -68,10 +68,21 @@ cd OpenManus
 3. 创建并激活虚拟环境：
 
 ```bash
-uv venv
-source .venv/bin/activate  # Unix/macOS 系统
-# Windows 系统使用：
-# .venv\Scripts\activate
+# 创建虚拟环境（所有系统通用）
+uv venv --python 3.12
+
+# 激活虚拟环境（根据系统选择）
+# Linux/macOS (bash/zsh):
+source .venv/bin/activate
+
+# Linux/macOS (fish shell):
+source .venv/bin/activate.fish
+
+# Windows (cmd.exe):
+.venv\Scripts\activate.bat
+
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
 ```
 
 4. 安装依赖：

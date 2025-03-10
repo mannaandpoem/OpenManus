@@ -68,10 +68,21 @@ cd OpenManus
 3. Create a new virtual environment and activate it:
 
 ```bash
-uv venv
-source .venv/bin/activate  # On Unix/macOS
-# Or on Windows:
-# .venv\Scripts\activate
+# Create virtual environment (all systems)
+uv venv --python 3.12
+
+# Activation commands
+# Linux/macOS (bash/zsh):
+source .venv/bin/activate
+
+# Linux/macOS (fish shell):
+source .venv/bin/activate.fish
+
+# Windows (cmd.exe):
+.venv\Scripts\activate.bat
+
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
 ```
 
 4. Install dependencies:
