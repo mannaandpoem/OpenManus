@@ -20,3 +20,7 @@ temperature = 0.0
 model = "claude-3-5-sonnet"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."
+
+# Optinal configuration for proxy
+# [proxy]
+# proxy_url = "your proxy url"

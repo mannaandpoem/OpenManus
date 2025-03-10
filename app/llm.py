@@ -13,7 +13,7 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 from app.config import LLMSettings, config
 from app.logger import logger  # Assuming a logger is set up in your app
 from app.schema import Message
-
+import httpx
 
 class LLM:
     _instances: Dict[str, "LLM"] = {}
@@ -40,14 +40,24 @@ class LLM:
             self.api_key = llm_config.api_key
             self.api_version = llm_config.api_version
             self.base_url = llm_config.base_url
+            self.proxy = config.proxy
+            http_client = None
+            if config.proxy:
+                http_client = httpx.AsyncClient(proxy=self.proxy["proxy_url"])
+
             if self.api_type == "azure":
                 self.client = AsyncAzureOpenAI(
                     base_url=self.base_url,
                     api_key=self.api_key,
                     api_version=self.api_version,
+                    http_client=http_client
                 )
             else:
-                self.client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
+                self.client = AsyncOpenAI(
+                    api_key=self.api_key, 
+                    base_url=self.base_url,
+                    http_client=http_client
+                )
 
     @staticmethod
     def format_messages(messages: List[Union[dict, Message]]) -> List[dict]:
