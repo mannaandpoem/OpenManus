@@ -196,11 +196,13 @@ async def task_events(task_id: str):
                 elif event["type"] == "step":
                     task = task_manager.tasks.get(task_id)
                     if task:
-                        yield f"event: status\ndata: {dumps({
+                        message = {
                             'type': 'status',
                             'status': task.status,
                             'steps': task.steps
-                        })}\n\n"
+                        }
+                        json_message = dumps(message)
+                        yield f"event: status\ndata: {json_message}\n\n"
                     yield f"event: {event['type']}\ndata: {formatted_event}\n\n"
                 elif event["type"] in ["think", "tool", "act", "run"]:
                     yield f"event: {event['type']}\ndata: {formatted_event}\n\n"
