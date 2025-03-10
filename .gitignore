@@ -178,3 +178,6 @@ data/
 
 # Workspace
 workspace/
+
+# config.toml
+/config/config.toml

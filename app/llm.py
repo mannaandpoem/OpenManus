@@ -189,6 +189,7 @@ class LLM:
         tools: Optional[List[dict]] = None,
         tool_choice: Literal["none", "auto", "required"] = "auto",
         temperature: Optional[float] = None,
+        stream: bool = True,  # Add stream parameter with default value True
         **kwargs,
     ):
         """
@@ -201,6 +202,7 @@ class LLM:
             tools: List of tools to use
             tool_choice: Tool choice strategy
             temperature: Sampling temperature for the response
+            stream: Whether to stream the response (should be True for models requiring it)
             **kwargs: Additional completion arguments
 
         Returns:
@@ -238,10 +240,77 @@ class LLM:
                 tools=tools,
                 tool_choice=tool_choice,
                 timeout=timeout,
+                stream=stream,  # Add the stream parameter here
                 **kwargs,
             )
 
-            # Check if response is valid
+            # If streaming is enabled, handle streaming response differently
+            if stream:
+                collected_content = []
+                collected_tool_calls = []
+                latest_message = None
+
+                async for chunk in response:
+                    delta = chunk.choices[0].delta
+
+                    # Process content if present
+                    if delta.content:
+                        collected_content.append(delta.content)
+                        print(delta.content, end="", flush=True)
+
+                    # Process tool calls if present
+                    if delta.tool_calls:
+                        for tool_call in delta.tool_calls:
+                            # Initialize tool call if new
+                            if not collected_tool_calls or tool_call.index >= len(
+                                collected_tool_calls
+                            ):
+                                collected_tool_calls.append(
+                                    {
+                                        "id": tool_call.id or "",
+                                        "type": tool_call.type or "function",
+                                        "function": {
+                                            "name": tool_call.function.name or "",
+                                            "arguments": tool_call.function.arguments
+                                            or "",
+                                        },
+                                    }
+                                )
+                            else:
+                                # Add to existing tool call
+                                if tool_call.function.arguments:
+                                    collected_tool_calls[tool_call.index]["function"][
+                                        "arguments"
+                                    ] += tool_call.function.arguments
+                                if tool_call.function.name:
+                                    collected_tool_calls[tool_call.index]["function"][
+                                        "name"
+                                    ] = tool_call.function.name
+                                if tool_call.id:
+                                    collected_tool_calls[tool_call.index][
+                                        "id"
+                                    ] = tool_call.id
+
+                    # Reconstruct the message from collected parts
+                    latest_message = {
+                        "role": "assistant",
+                    }
+
+                    if collected_content:
+                        latest_message["content"] = "".join(collected_content)
+
+                    if collected_tool_calls:
+                        latest_message["tool_calls"] = collected_tool_calls
+
+                print()  # Newline after streaming
+
+                # Convert the dictionary to a ChatCompletionMessage object or similar format
+                # This depends on your implementation, you might need to adjust this
+                from openai.types.chat import ChatCompletionMessage
+
+                return ChatCompletionMessage(**latest_message)
+
+            # Non-streaming response handling (original code)
             if not response.choices or not response.choices[0].message:
                 print(response)
                 raise ValueError("Invalid or empty response from LLM")
