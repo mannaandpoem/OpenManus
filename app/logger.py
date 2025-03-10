@@ -1,33 +1,58 @@
+import os
+import time
+from pathlib import Path
 import sys
-from datetime import datetime
+from loguru import logger
 
-from loguru import logger as _logger
+# 获取项目根目录
+project_root = Path(__file__).parent.parent
 
-from app.config import PROJECT_ROOT
+# 创建logs目录
+logs_dir = project_root / "logs"
+logs_dir.mkdir(exist_ok=True)
 
+# 检查是否指定了日志文件
+log_file = os.environ.get("OPENMANUS_LOG_FILE")
 
-_print_level = "INFO"
+if not log_file:
+    # 如果没有指定，检查是否有任务ID（从session或工作区目录名）
+    task_id = os.environ.get("OPENMANUS_TASK_ID", "")
+    
+    # 使用任务ID作为日志文件名，而不是使用日期时间格式
+    if task_id:
+        # 确保任务ID以job_开头
+        if not task_id.startswith("job_"):
+            task_id = f"job_{task_id}"
+        log_filename = f"{task_id}.log"
+    else:
+        # 如果没有任务ID，使用时间戳创建一个job_ID格式的日志文件名
+        job_id = f"job_{int(time.time())}"
+        log_filename = f"{job_id}.log"
+    
+    log_file = logs_dir / log_filename
+else:
+    # 使用指定的日志文件
+    log_file = Path(log_file)
 
+# 配置loguru日志
+logger.remove()  # 移除默认的handler
+# 添加控制台输出
+logger.add(
+    sys.stderr,
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
+    level="INFO",
+)
+# 添加文件输出
+logger.add(
+    log_file,
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
+    level="INFO",
+    rotation="100 MB",
+    retention="10 days",
+)
 
-def define_log_level(print_level="INFO", logfile_level="DEBUG", name: str = None):
-    """Adjust the log level to above level"""
-    global _print_level
-    _print_level = print_level
-
-    current_date = datetime.now()
-    formatted_date = current_date.strftime("%Y%m%d%H%M%S")
-    log_name = (
-        f"{name}_{formatted_date}" if name else formatted_date
-    )  # name a log with prefix name
-
-    _logger.remove()
-    _logger.add(sys.stderr, level=print_level)
-    _logger.add(PROJECT_ROOT / f"logs/{log_name}.log", level=logfile_level)
-    return _logger
-
-
-logger = define_log_level()
-
+# 导出配置好的logger
+__all__ = ["logger"]
 
 if __name__ == "__main__":
     logger.info("Starting application")

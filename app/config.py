@@ -24,7 +24,6 @@ class LLMSettings(BaseModel):
     api_type: str = Field(..., description="AzureOpenai or Openai")
     api_version: str = Field(..., description="Azure Openai version if AzureOpenai")
 
-
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings]
 

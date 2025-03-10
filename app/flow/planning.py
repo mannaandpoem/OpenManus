@@ -1,6 +1,8 @@
 import json
+import os  # 添加导入os模块
 import time
 from typing import Dict, List, Optional, Union
+import asyncio  # 添加导入
 
 from pydantic import Field
 
@@ -61,7 +63,7 @@ class PlanningFlow(BaseFlow):
         # Fallback to primary agent
         return self.primary_agent
 
-    async def execute(self, input_text: str) -> str:
+    async def execute(self, input_text: str, job_id: str = None, cancel_event: asyncio.Event = None) -> str:
         """Execute the planning flow with agents."""
         try:
             if not self.primary_agent:
@@ -69,7 +71,7 @@ class PlanningFlow(BaseFlow):
 
             # Create initial plan if input provided
             if input_text:
-                await self._create_initial_plan(input_text)
+                await self._create_initial_plan(input_text, job_id)
 
                 # Verify plan was created successfully
                 if self.active_plan_id not in self.planning_tool.plans:
@@ -80,6 +82,11 @@ class PlanningFlow(BaseFlow):
 
             result = ""
             while True:
+                # 检查是否被要求取消执行
+                if cancel_event and cancel_event.is_set():
+                    logger.warning("Execution cancelled by user")
+                    return result + "\n执行已被用户取消"
+
                 # Get current step to execute
                 self.current_step_index, step_info = await self._get_current_step_info()
 
@@ -103,10 +110,24 @@ class PlanningFlow(BaseFlow):
             logger.error(f"Error in PlanningFlow: {str(e)}")
             return f"Execution failed: {str(e)}"
 
-    async def _create_initial_plan(self, request: str) -> None:
+    async def _create_initial_plan(self, request: str, job_id: str = None) -> None:
         """Create an initial plan based on the request using the flow's LLM and PlanningTool."""
+        # 如果提供了job_id，则使用它；否则生成一个基于请求的job_id
+        if not job_id:
+            job_id = f"job_{request[:8].replace(' ', '_')}"
+            if len(job_id) < 10:  # 如果太短，加上时间戳
+                job_id = f"job_{int(time.time())}"
+        
+        log_file_path = f"logs/{job_id}.log"
+        os.environ["OPENMANUS_TASK_ID"] = job_id
+        os.environ["OPENMANUS_LOG_FILE"] = log_file_path
+        
+        # 设置日志文件名为job_id
+        logger.add(log_file_path, rotation="100 MB")
+        
         logger.info(f"Creating initial plan with ID: {self.active_plan_id}")
 
+        # 原有代码继续执行
         # Create a system message for plan creation
         system_message = Message.system_message(
             "You are a planning assistant. Create a concise, actionable plan with clear steps. "
@@ -271,6 +292,7 @@ class PlanningFlow(BaseFlow):
             logger.info(
                 f"Marked step {self.current_step_index} as completed in plan {self.active_plan_id}"
             )
+            # ThinkingTracker.add_thinking_step(self.active_plan_id, f"Completed step {self.current_step_index}")
         except Exception as e:
             logger.warning(f"Failed to update plan status: {e}")
             # Update step status directly in planning tool storage

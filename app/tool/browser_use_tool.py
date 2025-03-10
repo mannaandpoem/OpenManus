@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging  # 添加导入
 from typing import Optional
 
 from browser_use import Browser as BrowserUseBrowser
@@ -259,22 +260,34 @@ class BrowserUseTool(BaseTool):
                 return ToolResult(error=f"Failed to get browser state: {str(e)}")
 
     async def cleanup(self):
-        """Clean up browser resources."""
-        async with self.lock:
-            if self.context is not None:
-                await self.context.close()
-                self.context = None
-                self.dom_service = None
-            if self.browser is not None:
-                await self.browser.close()
+        """清理浏览器资源"""
+        if hasattr(self, 'browser') and self.browser is not None:
+            try:
+                if hasattr(self, 'context') and self.context and not self.context.is_closed():
+                    await self.context.close()
+                if self.browser and not self.browser.is_closed():
+                    await self.browser.close()
                 self.browser = None
+                self.context = None
+                self.dom_service = None  # 修正变量名
+            except Exception as e:
+                logging.error(f"浏览器清理过程中出错: {str(e)}")
 
     def __del__(self):
-        """Ensure cleanup when object is destroyed."""
-        if self.browser is not None or self.context is not None:
+        """在对象被销毁时尝试清理资源"""
+        if hasattr(self, 'browser') and self.browser is not None:
             try:
-                asyncio.run(self.cleanup())
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                loop.run_until_complete(self.cleanup())
-                loop.close()
+                # 检查是否有事件循环正在运行
+                try:
+                    loop = asyncio.get_running_loop()
+                    if loop.is_running():
+                        # 如果有循环在运行，记录警告并跳过(避免运行时错误)
+                        logging.warning("事件循环正在运行，跳过浏览器清理。这可能会导致资源泄漏。")
+                        return
+                except RuntimeError:
+                    # 没有事件循环在运行，可以创建新的
+                    loop = asyncio.new_event_loop()
+                    loop.run_until_complete(self.cleanup())
+                    loop.close()
+            except Exception as e:
+                logging.error(f"浏览器资源清理失败: {str(e)}")

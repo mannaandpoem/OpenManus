@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业详情 - OpenManus</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .job-header {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .job-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .file-list li:last-child {
+            border-bottom: none;
+        }
+        .log-container {
+            height: 500px;
+            overflow-y: auto;
+            background-color: #1e1e1e;
+            color: #ddd;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .log-line {
+            margin: 0;
+            padding: 2px 0;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="job-header">
+            <h1>作业: <span id="job-id"></span></h1>
+            <div id="job-status">状态: <span>运行中</span></div>
+        </div>
+        
+        <div class="job-content">
+            <div class="panel">
+                <h2>生成的文件</h2>
+                <ul class="file-list" id="generated-files">
+                    <li>正在加载文件列表...</li>
+                </ul>
+            </div>
+            
+            <div class="panel">
+                <h2>系统日志</h2>
+                <div class="log-container" id="system-logs">
+                    <p class="log-line">正在加载日志...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从URL获取job_id
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('job_id');
+            document.getElementById('job-id').textContent = jobId;
+            
+            // 定期获取生成的文件和系统日志
+            function updateJobDetails() {
+                fetch(`/api/job/${jobId}/files`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const filesList = document.getElementById('generated-files');
+                        if (data.files && data.files.length > 0) {
+                            filesList.innerHTML = '';
+                            data.files.forEach(file => {
+                                const li = document.createElement('li');
+                                li.textContent = file;
+                                filesList.appendChild(li);
+                            });
+                        } else {
+                            filesList.innerHTML = '<li>暂无生成的文件</li>';
+                        }
+                    })
+                    .catch(error => console.error('获取文件列表失败:', error));
+                
+                fetch(`/api/job/${jobId}/logs`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const logsContainer = document.getElementById('system-logs');
+                        if (data.logs && data.logs.length > 0) {
+                            logsContainer.innerHTML = '';
+                            data.logs.forEach(log => {
+                                const p = document.createElement('p');
+                                p.className = 'log-line';
+                                p.textContent = log;
+                                logsContainer.appendChild(p);
+                            });
+                            // 自动滚动到底部
+                            logsContainer.scrollTop = logsContainer.scrollHeight;
+                        } else {
+                            logsContainer.innerHTML = '<p class="log-line">暂无日志</p>';
+                        }
+                    })
+                    .catch(error => console.error('获取日志失败:', error));
+            }
+            
+            // 初始更新
+            updateJobDetails();
+            
+            // 每3秒更新一次
+            setInterval(updateJobDetails, 3000);
+        });
+    </script>
+</body>
+</html>

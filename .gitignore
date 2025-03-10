@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+config/config.toml
 # Distribution / packaging
 .Python
 build/
@@ -178,3 +178,5 @@ data/
 
 # Workspace
 workspace/
+
+config/config.toml

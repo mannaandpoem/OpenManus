@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenManus Web - 新界面</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #3498db;
+            --background-color: #f9f9f9;
+            --panel-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --timeline-color: #3498db;
+            --timeline-completed: #2ecc71;
+            --button-primary: #4a6fa5;
+            --button-secondary: #e0e0e0;
+            --button-danger: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+        }
+
+        .emoji {
+            font-size: 1.8rem;
+            vertical-align: middle;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        .panel-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .left-panel {
+            flex: 2;
+            max-width: 40%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            flex: 3;
+            max-width: 60%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 思考过程部分 */
+        .thinking-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .record-count {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .auto-scroll {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .auto-scroll input {
+            cursor: pointer;
+        }
+
+        .thinking-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+            border-left: 2px solid var(--timeline-color);
+            margin-left: 10px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 10px 0 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -6px;
+            top: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--timeline-color);
+        }
+
+        .timeline-item.completed .timeline-marker {
+            background-color: var(--timeline-completed);
+        }
+
+        .timeline-content {
+            padding-left: 10px;
+        }
+
+        .timeline-header {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .btn-details {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 0;
+            text-align: left;
+        }
+
+        .btn-details:hover {
+            text-decoration: underline;
+        }
+
+        .timeline-details {
+            display: none;
+            margin-top: 5px;
+            padding: 8px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .file-list {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        /* 工作区文件部分 */
+        .workspace-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .refresh-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .workspace-files {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .workspace-item, .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .workspace-item:hover, .file-item:hover {
+            background-color: #f0f7ff;
+        }
+
+        .workspace-icon, .file-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .workspace-details, .file-details {
+            flex: 1;
+        }
+
+        .workspace-name, .file-name {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .workspace-date, .file-meta {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* 通信记录部分 */
+        .communication-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .communication-logs {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* 对话部分 */
+        .chat-messages {
+            flex: 1;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 100%;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+        }
+
+        .message-content {
+            background-color: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-content p {
+            margin-bottom: 8px;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-send {
+            background-color: var(--button-primary);
+            color: white;
+        }
+
+        .btn-send:hover {
+            background-color: #3a5a8a;
+        }
+
+        .btn-stop {
+            background-color: var(--button-danger);
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-clear {
+            background-color: var(--button-secondary);
+            color: #555;
+        }
+
+        .btn-clear:hover {
+            background-color: #ccc;
+        }
+
+        .btn-refresh {
+            background-color: var(--button-secondary);
+            color: #555;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .btn-refresh:hover {
+            background-color: #ccc;
+        }
+
+        /* 文件查看器 */
+        .file-viewer {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .file-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .file-viewer-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0 5px;
+        }
+
+        .btn-close:hover {
+            color: #333;
+        }
+
+        .file-content {
+            padding: 15px;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .panel-container {
+                flex-direction: column;
+            }
+            
+            .left-panel, .right-panel {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OpenManus <span class="emoji">🐱</span></h1>
+            <p class="subtitle">AI智能助手 - 网页版</p>
+        </header>
+        
+        <main>
+            <div class="panel-container">
+                <!-- 左侧面板 - 处理进度 -->
+                <div class="panel left-panel">
+                    <h2>处理进度</h2>
+                    
+                    <div class="thinking-section">
+                        <div class="section-header">
+                            <h3>AI思考过程</h3>
+                            <div class="record-count">7 条记录</div>
+                        </div>
+                        
+                        <div class="controls">
+                            <label class="auto-scroll">
+                                <input type="checkbox" id="auto-scroll" checked>
+                                <span>自动滚动</span>
+                            </label>
+                            <button id="clear-thinking" class="btn-clear">清空</button>
+                        </div>
+                        
+                        <div id="thinking-timeline" class="thinking-timeline">
+                            <!-- 思考步骤时间线 -->
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">执行步骤 30/30</div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">思考过程</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                    <div class="timeline-details">分析用户需求，确定需要创建一个贪吃蛇游戏。需要考虑游戏规则、逻辑实现、技术栈选择和界面设计等方面。</div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">选择了 1 个工具</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                    <div class="timeline-details">选择使用 python_execute 工具来生成游戏相关文件。</div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">使用工具: python_execute</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                    <div class="timeline-details">执行 Python 代码生成游戏规则、逻辑、技术栈和界面设计文档。</div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">思考过程</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                    <div class="timeline-details">分析生成的文件，确认所有必要的游戏组件都已经定义。考虑如何将这些组件整合成一个完整的游戏。</div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">在工作区 job_7a53bf19 中生成了 4 个文件:</div>
+                                    <div class="file-list">
+                                        snake_game_rules.txt, snake_game_logic.txt, 
+                                        snake_game_technology_stack.txt, 
+                                        snake_game_interface_design.txt
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">任务处理完成! 已在工作区 job_7a53bf19 中生成结果。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="workspace-section">
+                        <h3>工作区文件</h3>
+                        <div class="refresh-info">
+                            <span id="refresh-countdown">5秒后刷新</span>
+                            <button id="refresh-files" class="btn-refresh">刷新</button>
+                        </div>
+                        
+                        <div id="workspace-files" class="workspace-files">
+                            <div class="workspace-item">
+                                <div class="workspace-icon">📁</div>
+                                <div class="workspace-details">
+                                    <div class="workspace-name">job_7a53bf19</div>
+                                    <div class="workspace-date">3/10/2025 12:25:23 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="file-icon">📄</div>
+                                <div class="file-details">
+                                    <div class="file-name">snake_game_rules.txt</div>
+                                    <div class="file-meta">565 B · 3/10/2025, 12:25:23 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="file-icon">📄</div>
+                                <div class="file-details">
+                                    <div class="file-name">snake_game_logic.txt</div>
+                                    <div class="file-meta">565 B · 3/10/2025, 12:25:23 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="file-icon">📄</div>
+                                <div class="file-details">
+                                    <div class="file-name">snake_game_technology_stack.txt</div>
+                                    <div class="file-meta">410 B · 3/10/2025, 12:25:04 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="file-icon">📄</div>
+                                <div class="file-details">
+                                    <div class="file-name">snake_game_interface_design.txt</div>
+                                    <div class="file-meta">410 B · 3/10/2025, 12:25:04 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧面板 - 对话 -->
+                <div class="panel right-panel">
+                    <h2>对话</h2>
+                    
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- 示例消息 -->
+                        <div class="message ai-message">
+                            <div class="message-content">
+                                <p>performance.</p>
+                                <p>7. **Sound Integration:** Incorporated sound effects and background music to enhance the gaming experience.</p>
+                                <p>8. **Testing & Debugging:** Conducted thorough testing of game functionalities and resolved any identified bugs.</p>
+                                <p>9. **Performance Optimization:** Improved overall game performance and user playability.</p>
+                                <p>10. **Game Release:** Successfully published the game and gathered user feedback for potential improvements.</p>
+                                <br>
+                                <p>**Final Thoughts:**</p>
+                                <p>The development of the网页版贪蛇游戏 (web-based Snake Game) was a comprehensive process that saw all planned steps executed effectively. The combination of clear rule definition, strategic development choices, and user-centric design contributed to a successful project outcome. Feedback from users will be valuable for future iterations and enhancements. Overall, this project demonstrates a solid execution of game development concepts and practices.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <textarea id="user-input" placeholder="输入您的问题或指令..."></textarea>
+                        <div class="button-group">
+                            <button id="send-btn" class="btn-send">发送</button>
+                            <button id="stop-btn" class="btn-stop">停止</button>
+                            <button id="clear-btn" class="btn-clear">清除</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 文件查看器 -->
+                    <div id="file-viewer" class="file-viewer">
+                        <div class="file-viewer-header">
+                            <h3 id="file-name">文件名</h3>
+                            <button id="close-file-viewer" class="btn-close">×</button>
+                        </div>
+                        <pre id="file-content" class="file-content"></pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Powered by OpenManus - <a href="https://github.com/mannaandpoem/OpenManus" target="_blank">GitHub</a></p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('OpenManus Web界面初始化完成');
+            
+            // 获取DOM元素
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-btn');
+            const clearButton = document.getElementById('clear-btn');
+            const stopButton = document.getElementById('stop-btn');
+            const chatMessages = document.getElementById('chat-messages');
+            const fileViewer = document.getElementById('file-viewer');
+            const fileName = document.getElementById('file-name');
+            const fileContent = document.getElementById('file-content');
+            const closeFileViewerButton = document.getElementById('close-file-viewer');
+            const fileItems = document.querySelectorAll('.file-item');
+            const clearThinkingButton = document.getElementById('clear-thinking');
+            const thinkingTimeline = document.getElementById('thinking-timeline');
+            const refreshFilesButton = document.getElementById('refresh-files');
+            const refreshCountdown = document.getElementById('refresh-countdown');
+            const detailsButtons = document.querySelectorAll('.btn-details');
+            
+            // 绑定发送按钮点击事件
+            sendButton.addEventListener('click', function() {
+                const message = userInput.value.trim();
+                if (message) {
+                    // 添加用户消息
+                    const userMessageDiv = document.createElement('div');
+                    userMessageDiv.className = 'message user-message';
+                    userMessageDiv.innerHTML = `
+                        <div class="message-content">
+                            <p>${message}</p>
+                        </div>
+                    `;
+                    chatMessages.appendChild(userMessageDiv);
+                    
+                    // 清空输入框
+                    userInput.value = '';
+                    
+                    // 滚动到底部
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // 模拟AI响应
+                    setTimeout(function() {
+                        const aiMessageDiv = document.createElement('div');
+                        aiMessageDiv.className = 'message ai-message';
+                        aiMessageDiv.innerHTML = `
+                            <div class="message-content">
+                                <p>这是一个演示界面，实际功能需要连接到后端服务。</p>
+                                <p>您输入的消息是: "${message}"</p>
+                            </div>
+                        `;
+                        chatMessages.appendChild(aiMessageDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 1000);
+                }
+            });
+            
+            // 绑定清除按钮点击事件
+            clearButton.addEventListener('click', function() {
+                chatMessages.innerHTML = '';
+            });
+            
+            // 绑定停止按钮点击事件
+            stopButton.addEventListener('click', function() {
+                console.log('停止处理');
+            });
+            
+            // 绑定文件项点击事件
+            fileItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    const name = item.querySelector('.file-name').textContent;
+                    fileName.textContent = name;
+                    fileContent.textContent = '正在加载文件内容...';
+                    fileViewer.style.display = 'block';
+                    
+                    // 模拟加载文件内容
+                    setTimeout(function() {
+                        fileContent.textContent = `这是 ${name} 的内容示例。\n\n在实际应用中，这里将显示文件的真实内容。`;
+                    }, 500);
+                });
+            });
+            
+            // 绑定关闭文件查看器按钮点击事件
+            closeFileViewerButton.addEventListener('click', function() {
+                fileViewer.style.display = 'none';
+            });
+            
+            // 绑定清除思考记录按钮点击事件
+            clearThinkingButton.addEventListener('click', function() {
+                thinkingTimeline.innerHTML = '';
+                document.querySelector('.record-count').textContent = '0 条记录';
+            });
+            
+            // 绑定刷新文件按钮点击事件
+            refreshFilesButton.addEventListener('click', function() {
+                console.log('刷新文件列表');
+                refreshCountdown.textContent = '5秒后刷新';
+            });
+            
+            // 绑定详情按钮点击事件
+            detailsButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const details = button.nextElementSibling;
+                    if (details && details.classList.contains('timeline-details')) {
+                        if (details.style.display === 'none' || !details.style.display) {
+                            details.style.display = 'block';
+                            button.textContent = '隐藏详情 ▲';
+                        } else {
+                            details.style.display = 'none';
+                            button.textContent = '显示详情 ▼';
+                        }
+                    }
+                });
+            });
+            
+            // 模拟倒计时
+            let countdownValue = 5;
+            setInterval(function() {
+                countdownValue--;
+                if (countdownValue > 0) {
+                    refreshCountdown.textContent = `${countdownValue}秒后刷新`;
+                } else {
+                    refreshCountdown.textContent = '刷新中...';
+                    setTimeout(function() {
+                        refreshCountdown.textContent = '5秒后刷新';
+                        countdownValue = 5;
+                    }, 1000);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

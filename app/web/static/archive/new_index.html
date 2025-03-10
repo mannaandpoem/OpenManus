@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenManus Web</title>
+    <link rel="stylesheet" href="new_style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OpenManus <span class="emoji">🐱</span></h1>
+            <p class="subtitle">AI智能助手 - 网页版</p>
+        </header>
+        
+        <main>
+            <div class="panel-container">
+                <!-- 左侧面板 - 处理进度 -->
+                <div class="panel left-panel">
+                    <h2>处理进度</h2>
+                    
+                    <div class="thinking-section">
+                        <div class="section-header">
+                            <h3>AI思考过程</h3>
+                            <div class="record-count">0 条记录</div>
+                        </div>
+                        
+                        <div class="controls">
+                            <label class="auto-scroll">
+                                <input type="checkbox" id="auto-scroll" checked>
+                                <span>自动滚动</span>
+                            </label>
+                            <button id="clear-thinking" class="btn-clear">清空</button>
+                        </div>
+                        
+                        <div id="thinking-timeline" class="thinking-timeline">
+                            <!-- 思考步骤时间线 -->
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">执行步骤 30/30</div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">思考过程</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">选择了 1 个工具</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">使用工具: python_execute</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">思考过程</div>
+                                    <button class="btn-details">显示详情 ▼</button>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">在工作区 job_7a53bf19 中生成了 4 个文件:</div>
+                                    <div class="file-list">
+                                        snake_game_rules.txt, snake_game_logic.txt, 
+                                        snake_game_technology_stack.txt, 
+                                        snake_game_interface_design.txt
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">任务处理完成! 已在工作区 job_7a53bf19 中生成结果。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="workspace-section">
+                        <h3>工作区文件</h3>
+                        <div class="refresh-info">
+                            <span>5秒后刷新</span>
+                            <button id="refresh-files" class="btn-refresh">刷新</button>
+                        </div>
+                        
+                        <div id="workspace-files" class="workspace-files">
+                            <div class="workspace-item">
+                                <div class="workspace-icon">📁</div>
+                                <div class="workspace-details">
+                                    <div class="workspace-name">job_7a53bf19</div>
+                                    <div class="workspace-date">3/10/2025 12:25:23 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="file-icon">📄</div>
+                                <div class="file-details">
+                                    <div class="file-name">snake_game_logic.txt</div>
+                                    <div class="file-meta">565 B · 3/10/2025, 12:25:23 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="file-icon">📄</div>
+                                <div class="file-details">
+                                    <div class="file-name">snake_game_interface_design.txt</div>
+                                    <div class="file-meta">410 B · 3/10/2025, 12:25:04 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="communication-section">
+                        <h3>AI通信记录</h3>
+                        <div id="communication-logs" class="communication-logs">
+                            <!-- 通信记录将在这里动态添加 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧面板 - 对话 -->
+                <div class="panel right-panel">
+                    <h2>对话</h2>
+                    
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- 示例消息 -->
+                        <div class="message ai-message">
+                            <div class="message-content">
+                                <p>performance.</p>
+                                <p>7. **Sound Integration:** Incorporated sound effects and background music to enhance the gaming experience.</p>
+                                <p>8. **Testing & Debugging:** Conducted thorough testing of game functionalities and resolved any identified bugs.</p>
+                                <p>9. **Performance Optimization:** Improved overall game performance and user playability.</p>
+                                <p>10. **Game Release:** Successfully published the game and gathered user feedback for potential improvements.</p>
+                                <br>
+                                <p>**Final Thoughts:**</p>
+                                <p>The development of the网页版贪蛇游戏 (web-based Snake Game) was a comprehensive process that saw all planned steps executed effectively. The combination of clear rule definition, strategic development choices, and user-centric design contributed to a successful project outcome. Feedback from users will be valuable for future iterations and enhancements. Overall, this project demonstrates a solid execution of game development concepts and practices.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <textarea id="user-input" placeholder="输入您的问题或指令..."></textarea>
+                        <div class="button-group">
+                            <button id="send-btn" class="btn-send">发送</button>
+                            <button id="stop-btn" class="btn-stop">停止</button>
+                            <button id="clear-btn" class="btn-clear">清除</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 文件查看器 -->
+                    <div id="file-viewer" class="file-viewer">
+                        <div class="file-viewer-header">
+                            <h3 id="file-name">snake_game_technology_stack.txt</h3>
+                            <button id="close-file-viewer" class="btn-close">×</button>
+                        </div>
+                        <pre id="file-content" class="file-content">Technology Stack for Snake Game Development:
+
+1. **HTML**: For structuring the game interface.
+2. **CSS**: For styling the game layout and visuals.
+3. **JavaScript**: For implementing game logic and interactivity.
+4. **Game Libraries/Frameworks**:
+   - **p5.js**: A library for creative coding that simplifies graphics and interaction.
+   - **Phaser**: A fast and free open-source framework for Canvas and WebGL games.
+   - **Three.js** (if considering 3D elements): A library that makes 3D rendering easier.
+
+Next Steps:
+1. Review the Suggested Technologies.
+2. Select the Final Tech Stack.
+3. Document Your Choices.</pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Powered by OpenManus - <a href="https://github.com/mannaandpoem/OpenManus" target="_blank">GitHub</a></p>
+        </footer>
+    </div>
+    
+    <script src="new_main.js" type="module"></script>
+</body>
+</html>

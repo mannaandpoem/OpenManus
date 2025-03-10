@@ -1,10 +1,14 @@
+import argparse
 import asyncio
+import sys
+import os
 
 from app.agent.manus import Manus
 from app.logger import logger
 
 
-async def main():
+async def run_cli():
+    """运行命令行交互模式"""
     agent = Manus()
     while True:
         try:
@@ -23,5 +27,60 @@ async def main():
             break
 
 
+async def run_web():
+    """启动Web应用"""
+    # 使用子进程执行web_run.py
+    import uvicorn
+    import multiprocessing
+    from pathlib import Path
+    
+    # 确保目录结构存在
+    from web_run import ensure_directories, check_websocket_dependencies
+    
+    ensure_directories()
+    
+    if not check_websocket_dependencies():
+        logger.error("退出应用。请安装必要的依赖后重试。")
+        return
+    
+    logger.info("🚀 OpenManus Web 应用正在启动...")
+    logger.info("访问 http://localhost:8000 开始使用")
+    
+    # 设置环境变量以启用自动打开浏览器
+    os.environ["AUTO_OPEN_BROWSER"] = "1"
+    
+    # 在当前进程中启动Uvicorn服务器
+    uvicorn.run("app.web.app:app", host="0.0.0.0", port=8000)
+
+
+def main():
+    """主程序入口，解析命令行参数决定运行模式"""
+    parser = argparse.ArgumentParser(description="OpenManus - AI助手")
+    parser.add_argument(
+        "--web", 
+        action="store_true", 
+        help="以Web应用模式运行（默认为命令行模式）"
+    )
+    
+    args = parser.parse_args()
+    
+    try:
+        if args.web:
+            # 启动Web模式
+            logger.info("启动Web应用模式...")
+            asyncio.run(run_web())
+        else:
+            # 启动CLI模式
+            logger.info("启动命令行交互模式...")
+            asyncio.run(run_cli())
+    except KeyboardInterrupt:
+        logger.warning("程序已退出")
+    except Exception as e:
+        logger.error(f"程序异常退出: {str(e)}")
+        return 1
+    
+    return 0
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    sys.exit(main())
