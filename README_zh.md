@@ -107,6 +107,11 @@ temperature = 0.0
 model = "gpt-4o"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # 替换为真实 API 密钥
+
+# 你可以用ollama来做本地部署:
+# 把model替换为你本地的模型
+# base_url = "http://localhost:11434/v1"
+# 其他设置可以不变
 ```
 
 ## 快速启动

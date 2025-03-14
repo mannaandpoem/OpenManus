@@ -103,6 +103,11 @@ temperature = 0.0
 model = "gpt-4o"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
+
+# For local setup, you could use ollama:
+# replace model with your ollama model
+# base_url = "http://localhost:11434/v1"
+# For api_key, max_tokens, temperature, you could just leave it there.
 ```
 
 ## Quick Start
