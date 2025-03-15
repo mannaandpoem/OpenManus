@@ -44,12 +44,12 @@ terminate_tool = Terminate()
 @openmanus.tool()
 async def browser_use(
     action: str,
-    url: Optional[str] = None,
-    index: Optional[int] = None,
-    text: Optional[str] = None,
-    script: Optional[str] = None,
-    scroll_amount: Optional[int] = None,
-    tab_id: Optional[int] = None,
+    url: str = None,
+    index: int = None,
+    text: str = None,
+    script: str = None,
+    scroll_amount: int = None,
+    tab_id: int = None,
 ) -> str:
     """Execute various browser operations.
 
