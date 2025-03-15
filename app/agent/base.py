@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -38,6 +38,14 @@ class BaseAgent(BaseModel, ABC):
     # Execution control
     max_steps: int = Field(default=10, description="Maximum steps before termination")
     current_step: int = Field(default=0, description="Current step in execution")
+    
+    # User interaction state
+    waiting_for_user_input: bool = Field(
+        default=False, description="Whether the agent is waiting for user input"
+    )
+    last_user_response: Optional[str] = Field(
+        default=None, description="The last response from the user"
+    )
 
     duplicate_threshold: int = 2
 
@@ -133,12 +141,41 @@ class BaseAgent(BaseModel, ABC):
             while (
                 self.current_step < self.max_steps and self.state != AgentState.FINISHED
             ):
+                # Reset user input flag before each step
+                self.waiting_for_user_input = False
+                
                 self.current_step += 1
                 logger.info(f"Executing step {self.current_step}/{self.max_steps}")
-                step_result = await self.step()
+                try:
+                    step_result = await self.step()
+                    
+                    # More detailed logging for debugging
+                    logger.info(f"Step result type: {type(step_result)}")
+                    if isinstance(step_result, dict):
+                        logger.info(f"Step result keys: {step_result.keys()}")
+                    
+                    # Check if step result contains a request for user input
+                    if isinstance(step_result, dict) and step_result.get("requires_user_response"):
+                        logger.info("Agent is waiting for user input...")
+                        print(f"\n{step_result.get('observation', 'Please provide your response:')}")
+                        
+                        # Set waiting flag and pause execution
+                        self.waiting_for_user_input = True
+                        user_response = input("Your response: ")
+                        
+                        # Add user response to memory and continue
+                        self.update_memory("user", user_response)
+                        self.last_user_response = user_response
+                        self.waiting_for_user_input = False
+                        
+                        results.append(f"Step {self.current_step}: Waiting for user input - Response: {user_response}")
+                        continue
+                except Exception as e:
+                    logger.error(f"Error during step execution: {e}")
+                    step_result = f"Error: {str(e)}"
 
-                # Check for stuck state
-                if self.is_stuck():
+                # Check for stuck state only if not waiting for user input
+                if not self.waiting_for_user_input and self.is_stuck():
                     self.handle_stuck_state()
 
                 results.append(f"Step {self.current_step}: {step_result}")

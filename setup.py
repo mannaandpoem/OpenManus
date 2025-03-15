@@ -15,7 +15,10 @@ setup(
     url="https://github.com/mannaandpoem/OpenManus",
     packages=find_packages(),
     install_requires=[
-        "pydantic~=2.10.4",
+        "pydantic",
+        "aiofiles",
+        "pytest",
+        "pytest-asyncio",
         "openai~=1.58.1",
         "tenacity~=9.0.0",
         "pyyaml~=6.0.2",
@@ -30,7 +33,6 @@ setup(
         "unidiff~=0.7.5",
         "browser-use~=0.1.40",
         "googlesearch-python~=1.3.0",
-        "aiofiles~=24.1.0",
         "pydantic_core~=2.27.2",
         "colorama~=0.4.6",
     ],
@@ -40,7 +42,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.12",
+    python_requires=">=3.8",
     entry_points={
         "console_scripts": [
             "openmanus=main:main",

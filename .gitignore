@@ -178,3 +178,9 @@ data/
 
 # Workspace
 workspace/
+
+#config file
+config/config.toml
+
+#sandbox folder
+sandbox/
