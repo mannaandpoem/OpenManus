@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from typing import Any, List, Literal, Optional, Union
@@ -129,6 +130,8 @@ class ToolCallAgent(ReActAgent):
 
         return "\n\n".join(results)
 
+    pending_tasks: List[asyncio.Task] = Field(default_factory=list)
+
     async def execute_tool(self, command: ToolCall) -> str:
         """Execute a single tool call with robust error handling"""
         if not command or not command.function or not command.function.name:
@@ -144,7 +147,21 @@ class ToolCallAgent(ReActAgent):
 
             # Execute the tool
             logger.info(f"🔧 Activating tool: '{name}'...")
-            result = await self.available_tools.execute(name=name, tool_input=args)
+            if name == "terminate":
+                # 等待所有pending任务完成
+                if self.pending_tasks:
+                    await asyncio.gather(*self.pending_tasks)
+                result = await self.available_tools.execute(name=name, tool_input=args)
+            else:
+                # 创建新任务并添加到pending列表
+                task = asyncio.create_task(
+                    self.available_tools.execute(name=name, tool_input=args)
+                )
+                self.pending_tasks.append(task)
+                try:
+                    result = await task
+                finally:
+                    self.pending_tasks.remove(task)
 
             # Format result for display
             observation = (
