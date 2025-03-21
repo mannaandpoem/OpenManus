@@ -20,7 +20,7 @@ baidusearch~=1.0.3
 duckduckgo_search~=7.5.1
 
 aiofiles~=24.1.0
-pydantic_core~=2.27.2
+pydantic_core~=2.32.0
 colorama~=0.4.6
 playwright~=1.50.0
 
