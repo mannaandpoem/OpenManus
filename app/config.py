@@ -51,6 +51,12 @@ class SearchSettings(BaseModel):
     )
 
 
+class AgentSettings(BaseModel):
+    max_steps: int = Field(
+        default=20, description="Maximum steps before the agent terminates"
+    )
+
+
 class BrowserSettings(BaseModel):
     headless: bool = Field(False, description="Whether to run browser in headless mode")
     disable_security: bool = Field(
@@ -100,6 +106,9 @@ class AppConfig(BaseModel):
     )
     search_config: Optional[SearchSettings] = Field(
         None, description="Search configuration"
+    )
+    agent_config: Optional[AgentSettings] = Field(
+        None, description="Agent configuration"
     )
 
     class Config:
@@ -203,6 +212,11 @@ class Config:
         else:
             sandbox_settings = SandboxSettings()
 
+        agent_config = raw_config.get("agent", {})
+        agent_settings = None
+        if agent_config:
+            agent_settings = AgentSettings(**agent_config)
+
         config_dict = {
             "llm": {
                 "default": default_settings,
@@ -214,6 +228,7 @@ class Config:
             "sandbox": sandbox_settings,
             "browser_config": browser_settings,
             "search_config": search_settings,
+            "agent_config": agent_settings,
         }
 
         self._config = AppConfig(**config_dict)
@@ -234,6 +249,10 @@ class Config:
     def search_config(self) -> Optional[SearchSettings]:
         return self._config.search_config
 
+    @property
+    def agent_config(self) -> Optional[AgentSettings]:
+        return self._config.agent_config
+    
     @property
     def workspace_root(self) -> Path:
         """Get the workspace root directory"""
