@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import Field
 
@@ -21,6 +21,8 @@ class ReActAgent(BaseAgent, ABC):
 
     max_steps: int = 10
     current_step: int = 0
+
+    special_tool_names: List[str] = []
 
     @abstractmethod
     async def think(self) -> bool:

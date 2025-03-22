@@ -39,6 +39,9 @@ class BaseAgent(BaseModel, ABC):
     # Execution control
     max_steps: int = Field(default=10, description="Maximum steps before termination")
     current_step: int = Field(default=0, description="Current step in execution")
+    special_tool_names: List[str] = Field(
+        default=None, description="Agent's special tool names"
+    )
 
     duplicate_threshold: int = 2
 

@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import Field
 
 from app.agent.browser import BrowserAgent
@@ -36,6 +38,9 @@ class Manus(BrowserAgent):
             PythonExecute(), BrowserUseTool(), StrReplaceEditor(), Terminate()
         )
     )
+
+    # Add special_tool_names for this agent
+    special_tool_names: List[str] = [Terminate().name]
 
     async def think(self) -> bool:
         """Process current state and decide next actions with appropriate context."""
