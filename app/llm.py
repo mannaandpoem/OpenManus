@@ -611,7 +611,9 @@ class LLM:
 
             collected_messages = []
             async for chunk in response:
-                chunk_message = chunk.choices[0].delta.content or ""
+                chunk_message = (
+                    chunk.choices[0].delta.content if chunk.choices[0].delta else ""
+                )
                 collected_messages.append(chunk_message)
                 print(chunk_message, end="", flush=True)
 
