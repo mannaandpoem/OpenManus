@@ -90,3 +90,8 @@ temperature = 0.0                           # Controls randomness for vision mod
 #cpu_limit = 2.0
 #timeout = 300
 #network_enabled = true
+
+# Server configuration
+[server]
+host = "127.0.0.1"  # 服务器监听的主机地址
+port = 5172         # 服务器监听的端口

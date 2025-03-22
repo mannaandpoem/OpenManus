@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenManus - Cyberpunk</title>
+    <link rel="stylesheet" href="/static/themes/cyberpunk/static/cyberpunk.css">
+    <!-- Add Font Awesome icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Top navigation bar -->
+    <header class="header">
+        <div class="header-left">
+            <a href="/" class="logo" style="text-decoration: none;">
+                <span class="logo-text">OPENMANUS</span>
+            </a>
+        </div>
+        <div class="header-right">
+            <!-- History icon button - using CSS class -->
+            <button class="history-toggle">
+                <i class="fas fa-history"></i>
+                <span class="history-count">0</span>
+            </button>
+            <a href="#" class="login-btn">
+                <i class="fas fa-user"></i>
+                LOGIN
+            </a>
+        </div>
+    </header>
+
+    <!-- History panel -->
+    <aside class="history-panel">
+        <div class="history-header">
+            <div class="history-title">History</div>
+            <div class="history-actions">
+                <button class="history-action-btn" title="Refresh" onclick="loadHistory()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+        <div id="task-list" class="task-list">
+            <!-- Task list will be dynamically loaded through JavaScript -->
+        </div>
+    </aside>
+
+    <!-- Background overlay -->
+    <div class="overlay"></div>
+
+    <!-- Main container -->
+    <div class="container">
+        <div class="main-panel">
+            <div id="task-container" class="task-container cyber-panel">
+                <div class="welcome-message">
+                    <div class="logo-animation">
+                        <img src="/static/images/logo/logo_white.png" alt="OpenManus Logo" class="welcome-logo">
+                    </div>
+
+                    <div class="title-container">
+                        <h2 class="title-text" data-text="MANUS INTERFACE">MANUS INTERFACE</h2>
+                    </div>
+                    <div class="title-glitch-overlay"></div>
+                    <div class="subtitle-text">AUTONOMOUS INTELLIGENCE</div>
+                    <div class="command-text"><span class="dash">—</span> / READY TO EXECUTE COMMAND \ <span
+                            class="dash">—</span></div>
+                </div>
+                <div id="steps-container" class="steps-container"></div>
+            </div>
+
+            <div id="result-panel" class="result-panel hidden">
+                <div class="result-header">
+                    <h2>MANUS INTERFACE</h2>
+                    <div class="result-controls">
+                        <div class="minimize-result" onclick="toggleResultPanel()"></div>
+                    </div>
+                </div>
+
+                <div class="step-info-container">
+                    <div id="current-step" class="step-info-box">
+                        <!-- Step information will be dynamically populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div id="result-container" class="result-container"></div>
+            </div>
+
+            <div class="input-container">
+                <input type="text" id="prompt-input" placeholder="Enter command...">
+                <button onclick="createTask()" class="send-btn">EXECUTE</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js" defer></script>
+</body>
+
+</html>
