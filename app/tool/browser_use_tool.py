@@ -15,35 +15,8 @@ from app.llm import LLM
 from app.tool.base import BaseTool, ToolResult
 from app.tool.web_search import WebSearch
 
-
 _BROWSER_DESCRIPTION = """
-Interact with a web browser to perform various actions such as navigation, element interaction, content extraction, and tab management. This tool provides a comprehensive set of browser automation capabilities:
-
-Navigation:
-- 'go_to_url': Go to a specific URL in the current tab
-- 'go_back': Go back
-- 'refresh': Refresh the current page
-- 'web_search': Search the query in the current tab, the query should be a search query like humans search in web, concrete and not vague or super long. More the single most important items.
-
-Element Interaction:
-- 'click_element': Click an element by index
-- 'input_text': Input text into a form element
-- 'scroll_down'/'scroll_up': Scroll the page (with optional pixel amount)
-- 'scroll_to_text': If you dont find something which you want to interact with, scroll to it
-- 'send_keys': Send strings of special keys like Escape,Backspace, Insert, PageDown, Delete, Enter, Shortcuts such as `Control+o`, `Control+Shift+T` are supported as well. This gets used in keyboard.press.
-- 'get_dropdown_options': Get all options from a dropdown
-- 'select_dropdown_option': Select dropdown option for interactive element index by the text of the option you want to select
-
-Content Extraction:
-- 'extract_content': Extract page content to retrieve specific information from the page, e.g. all company names, a specifc description, all information about, links with companies in structured format or simply links
-
-Tab Management:
-- 'switch_tab': Switch to a specific tab
-- 'open_tab': Open a new tab with a URL
-- 'close_tab': Close the current tab
-
-Utility:
-- 'wait': Wait for a specified number of seconds
+Interact with a web browser to perform navigation (go_to_url, go_back, web_search), element interaction (click_element, input_text, scroll_down/up, scroll_to_text, send_keys, get_dropdown_options, select_dropdown_option), content extraction (extract_content), tab management (switch_tab, open_tab, close_tab), and utility actions (wait). Use this tool to browse websites, fill forms, click buttons, extract information, and manage browser tabs.
 """
 
 Context = TypeVar("Context")
