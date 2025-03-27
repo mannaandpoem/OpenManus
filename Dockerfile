@@ -1,13 +1,12 @@
 FROM python:3.12-slim
 
-WORKDIR /app/OpenManus
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends git curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && (command -v uv >/dev/null 2>&1 || pip install --no-cache-dir uv)
+# Install uv
+RUN pip install uv
 
-COPY . .
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
 
-RUN uv pip install --system -r requirements.txt
-
+# The actual installation and running will be done by the command in docker-compose.yml
 CMD ["bash"]
