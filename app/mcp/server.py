@@ -19,7 +19,8 @@ from app.tool.bash import Bash
 from app.tool.browser_use_tool import BrowserUseTool
 from app.tool.str_replace_editor import StrReplaceEditor
 from app.tool.terminate import Terminate
-
+from app.tool.data_analysis import DataAnalysisTool
+from app.tool.etl_tool import ETLTool
 
 class MCPServer:
     """MCP Server implementation with tool registration and management."""
@@ -33,6 +34,10 @@ class MCPServer:
         self.tools["browser"] = BrowserUseTool()
         self.tools["editor"] = StrReplaceEditor()
         self.tools["terminate"] = Terminate()
+        # 新增数据分析工具
+        self.tools["data_analysis"] = DataAnalysisTool()
+        # 新增ETL工具注册
+        self.tools["etl_tool"] = ETLTool()
 
     def register_tool(self, tool: BaseTool, method_name: Optional[str] = None) -> None:
         """Register a tool with parameter validation and documentation."""
@@ -165,9 +170,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="OpenManus MCP Server")
     parser.add_argument(
         "--transport",
-        choices=["stdio"],
+        choices=["stdio", "sse"],
         default="stdio",
-        help="Communication method: stdio or http (default: stdio)",
+        help="Communication method: stdio or sse (default: stdio)",
     )
     return parser.parse_args()
 

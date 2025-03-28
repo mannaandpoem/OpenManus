@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ETL分析报告 - {{ data_source }}</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>数据源: {{ data_source }}</h1>
+
+    <!-- 基础统计 -->
+    <section>
+        <h2>基础统计</h2>
+        <p>数据维度: {{ report.basic.data_shape[0] }} 行 × {{ report.basic.data_shape[1] }} 列</p>
+        <div>{{ visuals|safe }}</div>
+    </section>
+
+    <!-- 高级分析 -->
+    {% if report.advanced %}
+    <section>
+        <h2>高级分析</h2>
+        <div id="correlation_heatmap">{{ visuals.correlation_heatmap|safe }}</div>
+    </section>
+    {% endif %}
+
+    <!-- 预测分析 -->
+    {% if report.predictive and not report.predictive.error %}
+    <section>
+        <h2>预测建模</h2>
+        <div id="feature_importance">{{ visuals.feature_importance|safe }}</div>
+    </section>
+    {% endif %}
+</body>
+</html>

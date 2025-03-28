@@ -1,9 +1,10 @@
-pydantic~=2.10.6
+pydantic>=2.10.6,<3.0.0
+pydantic-core>=2.14.6
 openai~=1.66.3
 tenacity~=9.0.0
 pyyaml~=6.0.2
 loguru~=0.7.3
-numpy
+
 datasets~=3.2.0
 fastapi~=0.115.11
 tiktoken~=0.9.0
@@ -33,3 +34,28 @@ httpx>=0.27.0
 tomli>=2.0.0
 
 boto3~=1.37.16
+
+# ETL 依赖包
+pandas>=1.5.3  # ETL核心依赖
+openpyxl>=3.0.10  # Excel支持
+scipy>=1.10.0  # 异常值检测
+
+scikit-learn  # 聚类算法
+matplotlib>=3.7.2  # 数据可视化
+seaborn>=0.13.0  # 数据可视化
+pandas-profiling>=3.6.0  # 数据探索
+statsmodels>=0.14.0  # 统计模型
+urllib3>=2.0
+pandas
+numpy
+sqlalchemy
+pyarrow
+openpyxl
+xlrd
+pymysql
+psycopg2-binary
+pytest
+pytest-asyncio
+jinja2
+plotly
+pytest-cov
