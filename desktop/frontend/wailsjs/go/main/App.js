@@ -9,3 +9,7 @@ export function Greet(arg1) {
 export function ReadAll(arg1) {
   return window['go']['main']['App']['ReadAll'](arg1);
 }
+
+export function SaveFile(arg1, arg2) {
+  return window['go']['main']['App']['SaveFile'](arg1, arg2);
+}

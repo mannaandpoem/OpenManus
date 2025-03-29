@@ -1,5 +1,5 @@
 :root {
-  --el-menu-base-level-padding: 10px !important;
+  --el-menu-base-level-padding: 4px !important;
   /** Indents for submenu items */
   --el-menu-level-padding: 20px !important;
 }
@@ -270,7 +270,7 @@ button>span.el-button__text--expand {
 
 /* If defined in AsideMenu, menu components associated may not read some overridden styles */
 .el-sub-menu__title {
-  padding: 0px 10px !important;
+  padding: 0px 4px !important;
   border-radius: 6px;
   border: none !important;
 }
@@ -440,6 +440,13 @@ div.el-divider {
 
 .fxc {
   display: flex;
+  justify-content: center !important;
+  align-items: center;
+}
+
+.fyc {
+  display: flex;
+  flex-direction: column;
   justify-content: center !important;
   align-items: center;
 }
@@ -932,6 +939,30 @@ div.el-divider {
 
 .ml-12 {
   margin-left: 12px !important;
+}
+
+.mt--8 {
+  margin-top: -8px !important;
+}
+
+.mt--10 {
+  margin-top: -10px !important;
+}
+
+.mt--12 {
+  margin-top: -12px !important;
+}
+
+.mt--16 {
+  margin-top: -16px !important;
+}
+
+.mt--20 {
+  margin-top: -20px !important;
+}
+
+.mt--24 {
+  margin-top: -24px !important;
 }
 
 .mt-0-5 {
@@ -1601,6 +1632,18 @@ div.el-divider {
 
 .pl-10 {
   padding-left: 10px !important;
+}
+
+.pl-12 {
+  padding-left: 12px !important;
+}
+
+.pl-14 {
+  padding-left: 14px !important;
+}
+
+.pl-16 {
+  padding-left: 16px !important;
 }
 
 .pl-20 {

@@ -1,6 +1,6 @@
 <template>
   <el-menu class="el-menu-custom" :default-active="activeMenu()" :collapse="menuCollapse" @open="handleOpen"
-    @close="handleClose">
+    @close="handleClose" :popper-offset="8">
 
     <el-menu-item index="M02" @click="routeTo('/task')">
       <el-icon>
@@ -32,8 +32,8 @@
 </template>
 
 <script setup>
-import { ChatDotRound, List, Clock, Setting } from '@element-plus/icons-vue'
-import { ref, inject, onMounted, reactive, watch } from 'vue'
+import { List, Clock, Setting } from '@element-plus/icons-vue'
+import { ref, computed, inject, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfig } from '@/store/config'
 import { storeToRefs } from 'pinia'
@@ -43,7 +43,10 @@ const utils = inject('utils')
 const { t } = useI18n()
 const router = useRouter()
 const config = useConfig()
-const { menuCollapse } = storeToRefs(config)
+
+const { collapse, resizeCollapse } = storeToRefs(config)
+
+const menuCollapse = computed(() => collapse.value || resizeCollapse.value)
 
 const handleOpen = (key, keyPath) => {
   // console.log(key, keyPath)
@@ -79,11 +82,6 @@ const menuList = [
         menuName: "menu.config.llm",
         href: "/config/llm"
       },
-      {
-        index: "M9903",
-        menuName: "menu.config.theme",
-        href: "/config/theme"
-      }
     ]
   },
 ]
@@ -115,9 +113,9 @@ watch(() => router.currentRoute.value.path, (newValue, oldValue) => {
 function activeMenu() {
   const currRoute = router.currentRoute
   const path = currRoute.value.path
-  console.log("currRoute path:", path)
+  // console.log("currRoute path:", path)
   let index = getIndexByPath(path)
-  console.log("index:", index)
+  // console.log("index:", index)
   if (utils.notNull(index)) {
     return index
   }
@@ -125,9 +123,9 @@ function activeMenu() {
   const lastIndex = path.lastIndexOf('/')
   if (lastIndex != -1) {
     const newPath = path.substring(0, lastIndex)
-    console.log("newPath from parent path:", newPath)
+    // console.log("newPath from parent path:", newPath)
     index = getIndexByPath(newPath)
-    console.log("index from parent path:", index)
+    // console.log("index from parent path:", index)
     if (utils.notNull(index)) {
       return index
     }
@@ -255,8 +253,6 @@ function getMenuNameByCode(code) {
   return t(code)
 }
 
-
-
 </script>
 
 <style scoped>
@@ -278,26 +274,28 @@ li {
   font-size: 15px;
 }
 
-/** When the menu is collapsed, redefine the hover menu height */
-.el-menu-item {
-  min-width: 44px;
-  height: 36px;
-  line-height: 36px;
-}
-
 .el-menu-custom {
   border-right: none;
   --el-menu-item-height: 40px;
   --el-menu-sub-item-height: 36px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+/** When the menu is collapsed, redefine the hover menu height */
+.el-menu-item {
+  min-width: 32px;
+  height: 36px;
+  line-height: 36px;
 }
 
 .el-menu-custom .el-menu--collapse {
-  width: 44px;
+  width: 32px;
 }
 
 .el-menu-custom:not(.el-menu--collapse) {
-  width: 200px;
+  width: 188px;
 }
 </style>

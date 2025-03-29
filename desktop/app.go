@@ -40,3 +40,7 @@ func (a *App) ReadAll(filePath string) string {
 	utils.Log("ReadAll data: ", data)
 	return data
 }
+
+func (a *App) SaveFile(filePath string, data string) {
+	utils.SaveFile(filePath, data)
+}

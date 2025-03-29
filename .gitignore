@@ -181,3 +181,6 @@ workspace/
 
 # Private Config
 config/config.toml
+
+# Desktop runtime
+desktop/frontend/wailsjs/runtime/

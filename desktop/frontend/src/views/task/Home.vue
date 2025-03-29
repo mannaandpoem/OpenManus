@@ -105,6 +105,10 @@ const taskInfo = computed(() => {
 const loading = ref(false)
 const scrollRef = ref(null)
 
+const backendUrl = computed(() => {
+  return config.getBackendUrl()
+})
+
 // 建立EventSource连接
 const buildEventSource = (taskId) => {
   loading.value = true

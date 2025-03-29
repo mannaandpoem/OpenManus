@@ -1,4 +1,4 @@
-import { ReadAll } from '@/../wailsjs/go/main/App.js'
+import { ReadAll, SaveFile } from '@/../wailsjs/go/main/App.js'
 import utils from '@/assets/js/utils'
 
 // Temporary cache for file information
@@ -186,6 +186,104 @@ function readAll(filePath) {
   return ReadAll(filePath)
 }
 
+// Await Read file contents
+async function awaitReadAll(filePath) {
+  return await ReadAll(filePath)
+}
+
+// Save file
+function saveFile(filePath, content) {
+  return SaveFile(filePath, content)
+}
+
+/**
+ * Reads a TOML node info to a json object
+ */
+async function readTomlNode(filePath, nodeName) {
+  const fileContent = await readAll(filePath)
+  // console.log("Read Toml file, filePath:", filePath, ", fileContent:", fileContent)
+  if (utils.isBlank(fileContent)) {
+    utils.pop(t('readTomlFailed'))
+    return
+  }
+  const lines = utils.stringToLines(fileContent)
+
+  // Read Node
+  const nodeStart = lines.findIndex((line) => {
+    return line.includes("[" + nodeName + "]")
+  })
+  const node = {}
+  for (let i = nodeStart + 1; i < lines.length; i++) {
+    // console.log("line: ", lines[i])
+    // Determine whether the next configuration module has been reached.
+    if (lines[i].startsWith("[")) {
+      break
+    }
+    // 读取配置
+    const line = lines[i]
+    if (line.startsWith("#")) {
+      continue
+    }
+    const lineArr = line.split("=")
+    if (lineArr.length == 0) {
+      continue
+    }
+    const key = lineArr[0].trim()
+    let value = ""
+    if (lineArr.length == 2) {
+      value = lineArr[1].trim()
+    }
+    node[key] = value
+  }
+  console.log("Read node from toml file, result: ", node)
+  return node
+}
+
+/**
+ * Save a toml node
+ */
+async function saveTomlNode(filePath, nodeName, newNodeJson) {
+  const fileContent = await readAll(filePath)
+  // console.log("Read Toml file, filePath:", filePath, ", fileContent:", fileContent)
+  if (utils.isBlank(fileContent)) {
+    utils.pop(t('readTomlFailed'))
+    return
+  }
+  const lines = utils.stringToLines(fileContent)
+
+  // Read Node
+  const nodeStart = lines.findIndex((line) => {
+    return line.includes("[" + nodeName + "]")
+  })
+
+  for (let i = nodeStart + 1; i < lines.length; i++) {
+    // console.log("line: ", lines[i])
+    // Determine whether the next configuration module has been reached.
+    if (lines[i].startsWith("[")) {
+      break
+    }
+    // 读取配置
+    const line = lines[i]
+    if (line.startsWith("#")) {
+      continue
+    }
+    const lineArr = line.split("=")
+    if (lineArr.length == 0) {
+      continue
+    }
+    const key = lineArr[0].trim()
+    let value = newNodeJson[key]
+    if (utils.isNull(value)) {
+      continue
+    }
+    value = value.trim()
+    lines[i] = key + " = " + value
+  }
+  console.log("Save node from toml file, new lines: ", lines)
+  const newContent = lines.join("\n")
+  await saveFile(filePath, newContent)
+}
+
 export default {
   // Cache on onChange
   cache,
@@ -206,5 +304,9 @@ export default {
   // Collect fileId from Comps
   fileIds,
   // Read file
-  readAll
+  readAll,
+  // Read toml node
+  readTomlNode,
+  // Save toml node
+  saveTomlNode,
 }

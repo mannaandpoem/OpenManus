@@ -66,15 +66,6 @@ const router = createRouter({
             index: 0
           }
         },
-        {
-          path: 'theme',
-          component: () => import('@/views/config/Theme.vue'),
-          meta: {
-            keepAlive: false,
-            title: "主题",
-            index: 1
-          }
-        },
       ]
     },
   ]

@@ -131,7 +131,7 @@ const baseEdit = computed(() => {
   return viewModel.base == 'edit'
 })
 
-const readConfigSuccess = ref(false)
+const readConfigSuccess = ref(true)
 
 const baseNoData = computed(() => {
   return baseShow && !readConfigSuccess.value
@@ -160,41 +160,42 @@ function clearCache() {
 
 onMounted(() => {
   // 读取配置文件config/config.toml
-  files.readAll("@/../../config/config.toml").then((fileContent) => {
-    console.log("config/config.toml: ", fileContent)
-    if (utils.notBlank(fileContent)) {
-      readConfigSuccess.value = true
-    } else {
-      utils.pop(t('readConfigFailed'))
-      return
-    }
-    const lines = utils.stringToLines(fileContent)
-
-    // 读取[llm]
-    const llmStart = lines.findIndex((line) => {
-      return line.includes("[llm]")
-    })
-    for (let i = llmStart + 1; i < lines.length; i++) {
-      console.log("line: ", lines[i])
-      // 判定是否到了下个配置模块
-      if (lines[i].startsWith("[")) {
-        break
-      }
-      // 读取配置
-      const line = lines[i]
-      const lineArr = line.split("=")
-      if (lineArr.length != 2) {
-        continue
-      }
-      const key = lineArr[0].trim()
-      const value = lineArr[1].trim()
-      llmConfig[key] = value
-    }
-    console.log("llmConfig read from file: ", llmConfig)
-    utils.copyProps(llmConfig, llmConfigUpd)
-  })
+  loadLlmConfig()
 })
 
+function loadLlmConfig() {
+  const filePath = "@/../../config/config.toml"
+  files.readTomlNode(filePath, "llm").then((node) => {
+    console.log("config/config.toml: ", node)
+    if (utils.isBlank(node)) {
+      readConfigSuccess.value = false
+      utils.pop(t('readTomlFailed'))
+      return
+    }
+    utils.copyProps(node, llmConfig)
+    utils.copyProps(node, llmConfigUpd)
+  })
+}
+
+function saveLlmConfig() {
+  const filePath = "@/../../config/config.toml"
+  files.readAll(filePath)
+  files.saveTomlNode(filePath, "llm", llmConfigUpd).then((resp) => {
+    console.log("config/config.toml: ", resp)
+    loadLlmConfig()
+    toShow('llm')
+  })
+}
+
+const ruleFormRef = ref()
+
+const rules = reactive({
+  model: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
+  base_url: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
+  api_key: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
+  max_tokens: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
+  temperature: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
+})
 
 const submitForm = async () => {
   try {
@@ -205,19 +206,12 @@ const submitForm = async () => {
       return
     }
     ElMessage.success('验证通过，提交表单');
-    // update()
+    saveLlmConfig()
+    toShow('base')
   } catch (error) {
     ElMessage.error('参数验证失败');
   }
 }
-
-const rules = reactive({
-  model: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
-  base_url: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
-  api_key: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
-  max_tokens: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
-  temperature: [{ validator: verify.validator('notBlank'), trigger: 'blur' }],
-})
 
 </script>
 

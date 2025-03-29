@@ -3,8 +3,9 @@
     <el-aside width="collapse" class="layout-aside" :class="shrink ? 'shrink' : ''">
       <div :class="menuCollapse ? 'fixed-menu-collapse fxc' : 'fixed-menu-expand fxsb'">
         <div v-show="!menuCollapse" class="menu-logo">
-          <el-link type="primary" @click="refresh" class="pl-20 pr-4">
-            <img src="@/assets/img/logo-sm.png" class="fxc" height="34px" alt="logo" />
+          <el-link type="primary" @click="refresh" class="pl-14 pr-4">
+            <img v-if="isDark" src="@/assets/img/logo-w-sm.png" class="fxc" height="26px" alt="logo" />
+            <img v-if="!isDark" src="@/assets/img/logo-b-sm.png" class="fxc" height="26px" alt="logo" />
           </el-link>
         </div>
         <el-link class="plr-10 w-56" @click="menuToggle">
@@ -60,11 +61,16 @@ import { showShade, closeShade } from '@/assets/js/shade'
 import { useConfig } from '@/store/config'
 import { useEventListener } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
+import { useDark } from '@vueuse/core'
 
 const router = useRouter()
 const config = useConfig()
+const isDark = useDark()
 
-const { shrink, menuCollapse } = storeToRefs(config)
+const { shrink, collapse, resizeCollapse } = storeToRefs(config)
+
+const menuCollapse = computed(() => collapse.value || resizeCollapse.value)
+
 const currentRoute = reactive(router.currentRoute)
 
 // Default transition effect, slide to the left
@@ -83,51 +89,48 @@ const menuAnimationDuration = ref(0)
 // Function to toggle the menu between expanded and collapsed states
 function menuToggle() {
   menuAnimationDuration.value = '300ms'
-
   if (menuCollapse.value) {
     // console.log("Extend menu")
     if (shrink.value) {
       // Expend the shade if menu is collapsing
       showShade(() => {
         // Callback function to close the shade after the menu has collapsed
-        config.setMenuCollapse(true)
+        config.setCollapse(true)
       })
     }
+    config.setCollapse(false)
   } else {
     // If the menu is in an expanded state, close the shade
     closeShade()
+    config.setCollapse(true)
   }
-  // Toggle the menu state
-  config.setMenuCollapse(!menuCollapse.value)
+  resizeCollapse.value = collapse.value
+  console.log("collapse:", collapse.value, ", menuCollapse:", menuCollapse.value)
 }
 
+// Adaptive layout
 function onAdaptiveLayout() {
   // Get the current window width
   const clientWidth = document.body.clientWidth
-  // console.log("menuCollapse:", menuCollapse.value, config.getMenuCollapse(), "clientWidth:", clientWidth)
   // Determine if the aside menu should be shrunk based on the window width
   if (clientWidth < 800) {
     config.setShrink(true)
-    if (!menuCollapse.value) {
-      // Collapse the menu if it is not already collapsed
-      menuToggle()
-    }
+    config.setResizeCollapse(true)
   } else {
     config.setShrink(false)
+    config.setResizeCollapse(false)
   }
+  closeShade()
 }
+
+watch(() => router.currentRoute.value, (newValue, oldValue) => {
+  // Toggle the menu when the route changes
+  onAdaptiveLayout()
+})
 
 onBeforeMount(() => {
   onAdaptiveLayout()
   useEventListener(window, 'resize', onAdaptiveLayout)
-})
-
-watch(() => router.currentRoute.value.path, (newValue, oldValue) => {
-  // If the layout is shrunk and the menu is expanded, collapse the menu
-  if (shrink.value && !menuCollapse.value) {
-    menuToggle()
-  }
-
 })
 
 function refresh() {
@@ -157,7 +160,7 @@ header {
 }
 
 aside {
-  background-color: var(--el-fg-color);
+  z-index: 9999999;
 }
 
 aside.shrink {
@@ -222,7 +225,6 @@ main {
 
 .fixed-menu-expand {
   position: fixed;
-  z-index: 9999;
   height: 44px;
   width: 200px;
   /* Reference to the keyframes */
@@ -231,12 +233,13 @@ main {
   animation-duration: v-bind('menuAnimationDuration');
   animation-timing-function: ease-in-out;
   background-color: var(--el-fg-color);
+  /* border-bottom: 1px solid var(--el-bg-color); */
   z-index: 9999999;
 }
 
 .scrollbar-menu-wrapper {
-  top: 44px;
-  height: calc(100vh - 44px);
+  top: 45px;
+  height: calc(100vh - 45px);
   background-color: var(--el-fg-color);
 }
 

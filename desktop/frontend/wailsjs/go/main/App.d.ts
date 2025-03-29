@@ -4,3 +4,5 @@
 export function Greet(arg1:string):Promise<string>;
 
 export function ReadAll(arg1:string):Promise<string>;
+
+export function SaveFile(arg1:string,arg2:string):Promise<void>;

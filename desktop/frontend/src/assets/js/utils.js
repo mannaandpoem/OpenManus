@@ -545,6 +545,7 @@ function stringToLines(str) {
   }
   return str.split('\n')
 }
+
 export default {
   /**
    * Synchronous GET HTTP request

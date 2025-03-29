@@ -45,9 +45,15 @@ export default {
     running: "Running",
     terminated: "Terminated",
   },
+  taskExecFailed: "Task execution failed",
   newTask: "New Task",
   readConfigSuccess: "Read config success",
-  readConfigFailed: "Read config failed",
+  readTomlFailed: "Read config failed",
   baseConfig: "Base Settings",
   serverConfig: "Server Config",
+  inDevelopment: "In development, not currently supported.",
+  expandAll: "Expand All",
+  collapseAll: "Collapse All",
+  generatedContent: "Generated Content",
+
 }

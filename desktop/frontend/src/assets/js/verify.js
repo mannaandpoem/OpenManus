@@ -90,7 +90,7 @@ const intValidator = (rule, value, callback) => {
 }
 
 function validator() {
-  console.log("arguments:", arguments)
+  // console.log("arguments:", arguments)
   if (arguments.length <= 1) {
     const type = arguments[0]
     // Default validation logic, no special characters
