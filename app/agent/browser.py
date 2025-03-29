@@ -127,3 +127,7 @@ class BrowserAgent(ToolCallAgent):
         self.next_step_prompt = NEXT_STEP_PROMPT
 
         return result
+
+    async def cleanup(self):
+        """Clean up browser agent resources by calling parent cleanup."""
+        await super().cleanup()

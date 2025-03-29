@@ -61,3 +61,7 @@ class Manus(BrowserAgent):
         self.next_step_prompt = original_prompt
 
         return result
+
+    async def cleanup(self):
+        """Clean up Manus agent resources by calling parent cleanup."""
+        await super().cleanup()
