@@ -106,6 +106,7 @@ base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
 max_tokens = 4096
 temperature = 0.0
+function_description_limit = 1024 #Openai Expected maximum length in Prompt when using Openai model
 
 # Optional configuration for specific LLM models
 [llm.vision]
