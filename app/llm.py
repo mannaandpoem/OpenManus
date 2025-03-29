@@ -329,11 +329,12 @@ class LLM:
                         ]
 
                     # Add the image to content
+                    mime_type = "image/png" if message['base64_image'].startswith('iVBORw0KGg') else "image/jpeg"
                     message["content"].append(
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{message['base64_image']}"
+                                "url": f"data:{mime_type};base64,{message['base64_image']}"
                             },
                         }
                     )
@@ -447,10 +448,11 @@ class LLM:
             collected_messages = []
             completion_text = ""
             async for chunk in response:
-                chunk_message = chunk.choices[0].delta.content or ""
-                collected_messages.append(chunk_message)
-                completion_text += chunk_message
-                print(chunk_message, end="", flush=True)
+                if chunk.choices and chunk.choices[0].delta.content is not None:
+                    chunk_message = chunk.choices[0].delta.content or ""
+                    collected_messages.append(chunk_message)
+                    completion_text += chunk_message
+                    print(chunk_message, end="", flush=True)
 
             print()  # Newline after streaming
             full_response = "".join(collected_messages).strip()
@@ -611,9 +613,10 @@ class LLM:
 
             collected_messages = []
             async for chunk in response:
-                chunk_message = chunk.choices[0].delta.content or ""
-                collected_messages.append(chunk_message)
-                print(chunk_message, end="", flush=True)
+                if chunk.choices and chunk.choices[0].delta.content is not None:
+                    chunk_message = chunk.choices[0].delta.content or ""
+                    collected_messages.append(chunk_message)
+                    print(chunk_message, end="", flush=True)
 
             print()  # Newline after streaming
             full_response = "".join(collected_messages).strip()
