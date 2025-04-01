@@ -21,7 +21,7 @@ setup(
         "pyyaml~=6.0.2",
         "loguru~=0.7.3",
         "numpy",
-        "datasets>=3.2,<3.5",
+        "datasets>=3.2,<3.6",
         "html2text~=2024.2.26",
         "gymnasium>=1.0,<1.2",
         "pillow>=10.4,<11.2",
