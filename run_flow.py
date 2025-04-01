@@ -4,11 +4,16 @@ import time
 from app.agent.manus import Manus
 from app.flow.flow_factory import FlowFactory, FlowType
 from app.logger import logger
+from app.tool.planning import PlanningTool
 
 
 async def run_flow():
+    manus_agent = Manus()
+    planning_tool_instance = PlanningTool()
+    manus_agent.available_tools.add_tool(planning_tool_instance)
+
     agents = {
-        "manus": Manus(),
+        "manus": manus_agent,
     }
 
     try:
@@ -21,6 +26,7 @@ async def run_flow():
         flow = FlowFactory.create_flow(
             flow_type=FlowType.PLANNING,
             agents=agents,
+            planning_tool=planning_tool_instance
         )
         logger.warning("Processing your request...")
 

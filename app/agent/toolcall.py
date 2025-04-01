@@ -10,6 +10,8 @@ from app.logger import logger
 from app.prompt.toolcall import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.schema import TOOL_CHOICE_TYPE, AgentState, Message, ToolCall, ToolChoice
 from app.tool import CreateChatCompletion, Terminate, ToolCollection
+from app.tool.base import ToolResult
+from app.tool.ask_human import HumanInterventionRequired
 
 
 TOOL_CALL_REQUIRED = "Tool calls required but none provided"
@@ -183,25 +185,26 @@ class ToolCallAgent(ReActAgent):
             # Handle special tools
             await self._handle_special_tool(name=name, result=result)
 
+            # If we got here, the tool executed successfully (or returned a ToolResult)
+            # Let's assume result is now potentially a ToolResult object
+
             # Check if result is a ToolResult with base64_image
-            if hasattr(result, "base64_image") and result.base64_image:
+            if isinstance(result, ToolResult) and result.base64_image:
                 # Store the base64_image for later use in tool_message
                 self._current_base64_image = result.base64_image
-
                 # Format result for display
                 observation = (
-                    f"Observed output of cmd `{name}` executed:\n{str(result)}"
-                    if result
+                    f"Observed output of cmd `{name}` executed:\n{str(result.output)}"
+                    if result.output
                     else f"Cmd `{name}` completed with no output"
                 )
-                return observation
-
-            # Format result for display (standard case)
-            observation = (
-                f"Observed output of cmd `{name}` executed:\n{str(result)}"
-                if result
-                else f"Cmd `{name}` completed with no output"
-            )
+            else:
+                # Format result for display (standard case, convert result to string)
+                observation = (
+                    f"Observed output of cmd `{name}` executed:\n{str(result)}"
+                    if result is not None
+                    else f"Cmd `{name}` completed with no output"
+                )
 
             return observation
         except json.JSONDecodeError:
@@ -210,6 +213,9 @@ class ToolCallAgent(ReActAgent):
                 f"📝 Oops! The arguments for '{name}' don't make sense - invalid JSON, arguments:{command.function.arguments}"
             )
             return f"Error: {error_msg}"
+        except HumanInterventionRequired as hir:
+            logger.info(f"Tool '{name}' raised HumanInterventionRequired. Re-raising with ID.")
+            raise HumanInterventionRequired(question=hir.question, tool_call_id=command.id)
         except Exception as e:
             error_msg = f"⚠️ Tool '{name}' encountered a problem: {str(e)}"
             logger.exception(error_msg)
