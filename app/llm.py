@@ -89,15 +89,9 @@ class TokenCounter:
                 return self._calculate_high_detail_tokens(width, height)
 
         # Default values when dimensions aren't available or detail level is unknown
-        if detail == "high":
-            # Default to a 1024x1024 image calculation for high detail
-            return self._calculate_high_detail_tokens(1024, 1024)  # 765 tokens
-        elif detail == "medium":
-            # Default to a medium-sized image for medium detail
-            return 1024  # This matches the original default
-        else:
-            # For unknown detail levels, use medium as default
-            return 1024
+        # Default to a 1024x1024 image calculation for high detail
+        # Default to a medium-sized image for medium detail and unknown detail levels
+        return self._calculate_high_detail_tokens(1024, 1024) if detail == "high" else 1024
 
     def _calculate_high_detail_tokens(self, width: int, height: int) -> int:
         """Calculate tokens for high detail images based on dimensions"""
