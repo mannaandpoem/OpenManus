@@ -1,0 +1,27 @@
+INFO:     Started server process [37996]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2026-01-17 19:21:06,773 - app.main - INFO - RID: 0bf36e5d-2543-4427-b689-365b9b53d94b - GET /dashboard - 307 - 0.0006s
+INFO:     127.0.0.1:52456 - "GET /dashboard HTTP/1.1" 307 Temporary Redirect
+2026-01-17 19:21:06,786 - app.main - INFO - RID: eb7f073c-d1a2-4922-9c7d-4aa4076ac685 - GET /dashboard/ - 200 - 0.0092s
+INFO:     127.0.0.1:52456 - "GET /dashboard/ HTTP/1.1" 200 OK
+2026-01-17 19:21:06,804 - app.main - INFO - RID: fdf95c14-e54d-49f4-bd71-92a8a832896c - GET /dashboard/css/styles.css - 200 - 0.0036s
+INFO:     127.0.0.1:52456 - "GET /dashboard/css/styles.css HTTP/1.1" 200 OK
+2026-01-17 19:21:06,808 - app.main - INFO - RID: b259f552-12bc-4e12-b0d3-474436ff7c07 - GET /dashboard/js/app.js - 200 - 0.0043s
+INFO:     127.0.0.1:52460 - "GET /dashboard/js/app.js HTTP/1.1" 200 OK
+2026-01-17 19:21:07,509 - app.main - INFO - RID: c28a2893-a6b0-438d-9f3b-f944b59e2420 - POST /api/v1/auth/login/access-token - 200 - 0.3396s
+INFO:     127.0.0.1:52460 - "POST /api/v1/auth/login/access-token HTTP/1.1" 200 OK
+2026-01-17 19:21:07,543 - app.main - INFO - RID: f4fc3446-2a40-49fd-81fb-d8a3bf81aeff - GET /api/v1/requests/ - 200 - 0.0268s
+INFO:     127.0.0.1:52460 - "GET /api/v1/requests/ HTTP/1.1" 200 OK
+2026-01-17 19:21:07,547 - app.main - INFO - RID: 1a6bb9aa-bd91-472e-83b4-cba3860f1ad6 - GET /api/v1/requests/notifications/upcoming - 200 - 0.0262s
+INFO:     127.0.0.1:52464 - "GET /api/v1/requests/notifications/upcoming HTTP/1.1" 200 OK
+2026-01-17 19:21:07,549 - app.main - INFO - RID: 9960ad4f-c53d-4889-bccf-15d7c39ecb20 - GET /api/v1/partners/ - 200 - 0.0321s
+INFO:     127.0.0.1:52456 - "GET /api/v1/partners/ HTTP/1.1" 200 OK
+2026-01-17 19:21:08,147 - app.api.v1.endpoints.requests - INFO - Created new request ID 1 for client AUTH-CLIENT by user 1
+2026-01-17 19:21:08,158 - app.main - INFO - RID: 8654b7e6-da07-43a2-ae52-256e8b15e9ee - POST /api/v1/requests/ - 200 - 0.0280s
+INFO:     127.0.0.1:52456 - "POST /api/v1/requests/ HTTP/1.1" 200 OK
+2026-01-17 19:21:08,169 - app.main - INFO - RID: 4bdd3b7b-dc58-4423-9844-036667db3000 - GET /api/v1/requests/ - 200 - 0.0061s
+INFO:     127.0.0.1:52456 - "GET /api/v1/requests/ HTTP/1.1" 200 OK
+2026-01-17 19:21:08,500 - app.main - INFO - RID: b310ad4e-4d5f-4b44-b69f-5d2492426243 - GET /api/v1/requests/ - 200 - 0.0063s
+INFO:     127.0.0.1:52456 - "GET /api/v1/requests/ HTTP/1.1" 200 OK

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DW Management System | Workflow & Assets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 z-3 d-flex align-items-center justify-content-center" style="display:none !important;">
+        <div class="card shadow-lg" style="width: 100%; max-width: 400px;">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-shield-lock text-primary display-4"></i>
+                    <h4 class="mt-2">System Login</h4>
+                    <p class="text-muted small">Please authenticate to continue</p>
+                </div>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="loginEmail" class="form-control" placeholder="admin@example.com" value="admin@example.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="admin123" value="admin123" required>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-gear-fill me-2"></i>
+                DW Management System
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/docs"><i class="bi bi-file-earmark-code me-1"></i> API Docs</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" onclick="showTab('list')">Workflows</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="showTab('kanban')">Kanban View</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="showTab('machine')">Machines & Maintenance</a>
+            </li>
+        </ul>
+
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0 text-primary fw-bold">Notifications</h6>
+                    </div>
+                    <div class="card-body p-0" id="notificationContainer">
+                        <div class="text-center py-4 text-muted small">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">
+                        <i class="bi bi-plus-lg me-1"></i> New Request
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#partnerModal">
+                        <i class="bi bi-people me-1"></i> Partners
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-9">
+                <!-- Workflows Tab -->
+                <div id="listPanel" class="tab-content-panel">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold">Active Machine Workflows</h6>
+                            <button class="btn btn-sm btn-link p-0 text-decoration-none" onclick="loadRequests()">Refresh</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">ID</th>
+                                        <th>Client</th>
+                                        <th>Current Stage</th>
+                                        <th>Created</th>
+                                        <th class="text-end pe-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requestTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kanban Tab -->
+                <div id="kanbanPanel" class="tab-content-panel" style="display:none;">
+                    <div class="row kanban-board g-3 overflow-auto flex-nowrap pb-3" id="kanbanBoard">
+                        <!-- Kanban columns generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Machines Tab -->
+                <div id="machinePanel" class="tab-content-panel">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold">Managed Assets (Machines)</h6>
+                            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#newMachineModal">Add Machine</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Serial</th>
+                                        <th>Model</th>
+                                        <th>Status</th>
+                                        <th>Location</th>
+                                        <th class="text-end pe-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="machineTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow Details Panel -->
+                <div id="detailsPanel">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex align-items-center">
+                            <button class="btn btn-sm btn-outline-secondary me-3" onclick="hideDetails()">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                            <h5 class="mb-0" id="detailTitle">Request Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="workflow-stepper" id="workflowStepper"></div>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3 text-muted small uppercase">Partner Quotes</h6>
+                                    <div id="quotesList" class="mb-3"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3 text-muted small uppercase">Documents & Compliance</h6>
+                                    <div id="documentList" class="mb-3"></div>
+                                    <div class="input-group input-group-sm">
+                                        <select id="docTypeSelect" class="form-select">
+                                            <option value="contract">Contract</option>
+                                            <option value="invoice">Invoice (NF)</option>
+                                            <option value="acceptance">Acceptance Form</option>
+                                        </select>
+                                        <input type="file" id="docFileInput" class="form-control">
+                                        <button class="btn btn-primary" onclick="uploadDoc()">Upload</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="fw-bold text-muted small uppercase">Contract Intelligence</h6>
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label small text-muted">Expiration Date</label>
+                                            <input type="date" id="contractExp" class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label small text-muted">Adjustment Month</label>
+                                            <select id="adjMonth" class="form-select form-select-sm">
+                                                <option value="">N/A</option>
+                                                <option value="1">January</option><option value="2">February</option>
+                                                <option value="3">March</option><option value="4">April</option>
+                                                <option value="5">May</option><option value="6">June</option>
+                                                <option value="7">July</option><option value="8">August</option>
+                                                <option value="9">September</option><option value="10">October</option>
+                                                <option value="11">November</option><option value="12">December</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button class="btn btn-sm btn-success w-100" onclick="updateContract()">Save Details</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-end" id="finalActionArea"></div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Section -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0 fw-bold">Case Timeline</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush small" id="requestTimeline">
+                                <!-- Timeline items -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: New Request -->
+    <div class="modal fade" id="newRequestModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="newRequestForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Initialize Workflow</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Client Name/ID</label>
+                            <input type="text" id="reqClientId" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Project Description</label>
+                            <textarea id="reqDescription" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: New Machine -->
+    <div class="modal fade" id="newMachineModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="newMachineForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Register New Machine</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-2">
+                            <div class="col-12 mb-2">
+                                <label class="form-label">Serial Number</label>
+                                <input type="text" id="macSerial" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Brand</label>
+                                <input type="text" id="macBrand" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Model</label>
+                                <input type="text" id="macModel" class="form-control" required>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <label class="form-label">Location</label>
+                                <input type="text" id="macLocation" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Machine History & Log Maintenance -->
+    <div class="modal fade" id="machineHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Maintenance Record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-5 border-end">
+                            <h6 class="fw-bold mb-3">Log New Service</h6>
+                            <form id="maintenanceLogForm">
+                                <div class="mb-2">
+                                    <label class="form-label small">Date</label>
+                                    <input type="date" id="maintDate" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Technician</label>
+                                    <input type="text" id="maintTech" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Service Description</label>
+                                    <textarea id="maintDesc" class="form-control form-control-sm" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Next Service Due</label>
+                                    <input type="date" id="maintNext" class="form-control form-control-sm">
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary w-100">Log Maintenance</button>
+                            </form>
+                        </div>
+                        <div class="col-md-7">
+                            <h6 class="fw-bold mb-3">Service History</h6>
+                            <div id="machineHistoryList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Partners -->
+    <div class="modal fade" id="partnerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Supplier Ecosystem</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newPartnerForm" class="row g-2 mb-4">
+                        <div class="col-md-5">
+                            <input type="text" id="partnerName" class="form-control form-control-sm" placeholder="Supplier Name" required>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" id="partnerContact" class="form-control form-control-sm" placeholder="Contact Info" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-sm btn-primary w-100">Add</button>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead><tr><th>Name</th><th>Contact</th><th>ID</th></tr></thead>
+                            <tbody id="partnerTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

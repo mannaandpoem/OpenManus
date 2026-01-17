@@ -1,0 +1,18 @@
+:root { --primary-blue: #0d6efd; --success-green: #198754; }
+.workflow-stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 2rem; }
+.workflow-stepper::before { content: ""; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #dee2e6; z-index: 1; }
+.step-item { position: relative; z-index: 2; text-align: center; font-size: 0.75rem; color: #6c757d; width: 100%; }
+.step-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 2px solid #dee2e6; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: bold; }
+.step-item.active { color: var(--primary-blue); font-weight: bold; }
+.step-item.active .step-circle { border-color: var(--primary-blue); background: #e7f1ff; }
+.step-item.completed { color: var(--success-green); }
+.step-item.completed .step-circle { border-color: var(--success-green); background: #d1e7dd; color: var(--success-green); }
+.card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); transition: transform 0.2s; }
+.status-badge { text-transform: capitalize; border-radius: 20px; padding: 0.35em 0.8em; }
+#detailsPanel, #machinePanel, #kanbanPanel { display: none; }
+.nav-tabs .nav-link { cursor: pointer; }
+
+.kanban-col { min-width: 250px; background: #f8f9fa; border-radius: 8px; padding: 10px; margin-right: 15px; border: 1px solid #dee2e6; }
+.kanban-card { background: #fff; border-radius: 6px; padding: 12px; margin-bottom: 10px; border: 1px solid #dee2e6; cursor: pointer; transition: box-shadow 0.2s; }
+.kanban-card:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.kanban-header { font-weight: bold; font-size: 0.9rem; margin-bottom: 15px; border-bottom: 2px solid #0d6efd; padding-bottom: 5px; }
