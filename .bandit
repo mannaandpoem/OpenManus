@@ -1,0 +1,10 @@
+[bandit]
+# Bandit configuration for OpenManus security scanning
+
+exclude_dirs = ['tests', 'venv', '.venv', 'node_modules']
+tests = ['B201', 'B301', 'B302', 'B303', 'B304', 'B305', 'B306', 'B307', 'B308', 'B309', 'B310', 'B311', 'B312', 'B313', 'B314', 'B315', 'B316', 'B317', 'B318', 'B319', 'B320', 'B321', 'B322', 'B323', 'B324', 'B325', 'B401', 'B402', 'B403', 'B404', 'B405', 'B406', 'B407', 'B408', 'B409', 'B410', 'B411', 'B412', 'B413', 'B414', 'B415', 'B501', 'B502', 'B503', 'B504', 'B505', 'B506', 'B507', 'B601', 'B602', 'B603', 'B604', 'B605', 'B606', 'B607', 'B608', 'B609', 'B610', 'B611', 'B701', 'B702']
+skips = []
+
+[bandit:assert_used]
+# Skip assert checks in tests
+skips = ['tests/*']

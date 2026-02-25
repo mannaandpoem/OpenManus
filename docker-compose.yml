@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Main OpenManus API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openmanus-api
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      PYTHONUNBUFFERED: 1
+      PYTHONDONTWRITEBYTECODE: 1
+      PORT: 8000
+      WORKERS: ${WORKERS:-2}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OPENMANUS_API_KEY: ${OPENMANUS_API_KEY:-dev-key-change-in-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost,127.0.0.1}
+    volumes:
+      - ./config:/app/config:ro
+      - ./workspace:/app/workspace
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    networks:
+      - openmanus-network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only_root_filesystem: false
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+
+  # Optional: Reverse proxy with rate limiting and authentication
+  nginx:
+    image: nginx:alpine
+    container_name: openmanus-nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+    networks:
+      - openmanus-network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  openmanus-network:
+    driver: bridge
+
+# ============================================================================
+# Usage:
+#
+# Development (automatic reload):
+#   docker-compose -f docker-compose.yml up --build
+#
+# Production:
+#   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Environment variables (.env file):
+#   API_PORT=8000
+#   WORKERS=4
+#   LOG_LEVEL=INFO
+#   OPENMANUS_API_KEY=your-secure-key-here
+#   CORS_ORIGINS=https://yourdomain.com
+#   TRUSTED_HOSTS=yourdomain.com
+#
+# ============================================================================
