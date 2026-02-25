@@ -1,0 +1,17 @@
+# Global LLM configuration
+[llm] #Jiekou.AI:
+api_type = 'jiekou'
+model = "claude-sonnet-4-5-20250929"                               # The LLM model to use
+base_url = "https://api.jiekou.ai/openai"                          # API endpoint URL
+api_key = "your Jiekou.AI api key"                                 # Your API key
+max_tokens = 64000                                                 # Maximum number of tokens in the response
+temperature = 0.0                                                  # Controls randomness
+
+
+[llm.vision] #Jiekou.AI VISION:
+api_type = 'jiekou'
+model = "claude-sonnet-4-5-20250929"                             # The vision model to use
+base_url = "https://api.jiekou.ai/openai"                        # API endpoint URL for vision model
+api_key = "your Jiekou.AI api key"                               # Your API key for vision model
+max_tokens = 64000                                               # Maximum number of tokens in the response
+temperature = 0.0                                                # Controls randomness for vision model
