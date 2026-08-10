@@ -1,0 +1,120 @@
+name: Crypto Futures Asymmetry Monitor
+
+on:
+  schedule:
+    - cron: '1-59/5 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-futures-monitor/**'
+      - '.github/workflows/crypto-futures-monitor.yml'
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: crypto-futures-asymmetry-monitor
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Restore persistent state
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/crypto-monitor
+          if git ls-remote --exit-code --heads origin crypto-monitor-state >/dev/null 2>&1; then
+            git fetch --no-tags origin crypto-monitor-state:refs/remotes/origin/crypto-monitor-state
+            git show origin/crypto-monitor-state:.crypto-monitor/state.json > /tmp/crypto-monitor/state.json || true
+          fi
+
+      - name: Run one bounded scan
+        id: scan
+        shell: bash
+        env:
+          CRYPTO_MONITOR_ROUND_TRIP_COST_BPS: '12'
+          CRYPTO_MONITOR_FUNDING_BUFFER_BPS: '1'
+        run: |
+          set -euo pipefail
+          python crypto-futures-monitor/monitor.py \
+            --state /tmp/crypto-monitor/state.json \
+            --output /tmp/crypto-monitor/result.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          r = json.loads(Path('/tmp/crypto-monitor/result.json').read_text())
+          for key in ('decision', 'state_action', 'should_notify', 'should_stop', 'persist_state'):
+              value = r.get(key)
+              if isinstance(value, bool):
+                  value = str(value).lower()
+              print(f'{key}={value}')
+          PY
+
+      - name: Persist state on state-changing cycles
+        if: steps.scan.outputs.persist_state == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/crypto-monitor-state-worktree
+          if git ls-remote --exit-code --heads origin crypto-monitor-state >/dev/null 2>&1; then
+            git fetch --no-tags origin crypto-monitor-state:refs/remotes/origin/crypto-monitor-state
+            git worktree add -B crypto-monitor-state /tmp/crypto-monitor-state-worktree origin/crypto-monitor-state
+          else
+            git worktree add -b crypto-monitor-state /tmp/crypto-monitor-state-worktree HEAD
+          fi
+          mkdir -p /tmp/crypto-monitor-state-worktree/.crypto-monitor
+          cp /tmp/crypto-monitor/state.json /tmp/crypto-monitor-state-worktree/.crypto-monitor/state.json
+          cd /tmp/crypto-monitor-state-worktree
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .crypto-monitor/state.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: persist crypto monitor state [skip ci]'
+            git push origin HEAD:crypto-monitor-state
+          fi
+
+      - name: Create alert issue only when required
+        if: steps.scan.outputs.should_notify == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('/tmp/crypto-monitor/result.json').read_text())
+          Path('/tmp/crypto-monitor/title.txt').write_text(r['issue_title'], encoding='utf-8')
+          Path('/tmp/crypto-monitor/body.md').write_text(r['issue_body'], encoding='utf-8')
+          PY
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$(cat /tmp/crypto-monitor/title.txt)" \
+            --body-file /tmp/crypto-monitor/body.md
+
+      - name: Disable monitor after confirmed entry or data pause
+        if: steps.scan.outputs.should_stop == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api \
+            --method PUT \
+            -H 'Accept: application/vnd.github+json' \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/crypto-futures-monitor.yml/disable"
