@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*$py.class
+sql_app.db
+uploads/
+.env
+.venv
+env/
+venv/
+node_modules/

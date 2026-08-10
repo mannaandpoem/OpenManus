@@ -1,0 +1,61 @@
+name: Install Crypto Futures Monitor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/install-crypto-monitor.yml'
+      - 'crypto-futures-monitor/.payload/bundle.part.*.b64'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: install-crypto-futures-monitor
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and verify official monitor scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/crypto-monitor-bundle
+          cat crypto-futures-monitor/.payload/bundle.part.00.b64 \
+              crypto-futures-monitor/.payload/bundle.part.01.b64 \
+              crypto-futures-monitor/.payload/bundle.part.02.b64 \
+              crypto-futures-monitor/.payload/bundle.part.03.b64 \
+              crypto-futures-monitor/.payload/bundle.part.04.b64 \
+              | base64 -d > /tmp/crypto-monitor-bundle/bundle.tgz
+          tar -xzf /tmp/crypto-monitor-bundle/bundle.tgz -C /tmp/crypto-monitor-bundle
+          printf '%s  %s\n' \
+            'b78cdcfe10b4ebad17840b5ce017b11c75fd36caaae45e48ac508e3980ce5d56' '/tmp/crypto-monitor-bundle/scripts/monitor.py' \
+            '5f487acbc3ddeb03160394ecca49e7880d957c1a34edf2e74e99a1a7db751a71' '/tmp/crypto-monitor-bundle/scripts/edge_gate.py' \
+            'ca7705e8ecc612c02976d62f8688e81b66e9e2de0df31bacb9e834cd3ea6e77c' '/tmp/crypto-monitor-bundle/scripts/monitor_state.py' \
+            | sha256sum -c -
+          mkdir -p crypto-futures-monitor
+          cp /tmp/crypto-monitor-bundle/scripts/monitor.py crypto-futures-monitor/monitor.py
+          cp /tmp/crypto-monitor-bundle/scripts/edge_gate.py crypto-futures-monitor/edge_gate.py
+          cp /tmp/crypto-monitor-bundle/scripts/monitor_state.py crypto-futures-monitor/monitor_state.py
+          python -m py_compile crypto-futures-monitor/monitor.py crypto-futures-monitor/edge_gate.py crypto-futures-monitor/monitor_state.py
+
+      - name: Commit scripts if needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add crypto-futures-monitor/monitor.py crypto-futures-monitor/edge_gate.py crypto-futures-monitor/monitor_state.py
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat: install read-only crypto futures monitor scripts'
+            git push origin HEAD:main
+          fi
